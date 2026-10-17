@@ -1,0 +1,1937 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>মেসার্স আবু নোমান - সার ডিলার ক্যাশ মেমো</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- html2pdf.js for PDF Export -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <!-- CryptoJS for SHA-256 Password Hashing -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        agri: {
+                            50: '#f0fdf4',
+                            100: '#dcfce7',
+                            600: '#16a34a',
+                            700: '#15803d',
+                            800: '#166534',
+                            900: '#14532d',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@500;600;700;800;900&family=Hind+Siliguri:wght@500;600;700&display=swap');
+        
+        body { 
+            font-family: 'Nirmala UI', 'Noto Sans Bengali', 'Hind Siliguri', system-ui, -apple-system, sans-serif; 
+            font-feature-settings: "locl" 0;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            text-rendering: optimizeLegibility;
+            color: #0f172a;
+        }
+
+        .font-nirmala {
+            font-family: 'Nirmala UI', 'Noto Sans Bengali', sans-serif !important;
+        }
+        
+        /* STRICT MULTI-MODE PRINT STYLES WITH CLEAR BLACK & WHITE TEXT */
+        @media print {
+            html, body, div, main, header, section, span, p, h1, h2, h3, h4, td, th, table, tr, tbody, thead {
+                position: static !important;
+                overflow: visible !important;
+                height: auto !important;
+                top: auto !important;
+                transform: none !important;
+            }
+
+            body { 
+                background: white !important; 
+                color: #000000 !important; 
+                padding: 0 !important; 
+                margin: 0 !important; 
+                -webkit-print-color-adjust: exact; 
+                print-color-adjust: exact;
+                font-family: 'Nirmala UI', 'Noto Sans Bengali', sans-serif !important;
+                font-weight: 700 !important;
+            }
+            .no-print { display: none !important; }
+            
+            body.print-memo-mode #printableMemoContainer { display: block !important; }
+            body.print-memo-mode #printableStatementContainer { display: none !important; }
+            body.print-memo-mode #printableReceiptContainer { display: none !important; }
+            body.print-memo-mode #printableStockContainer { display: none !important; }
+            body.print-memo-mode #printableImportContainer { display: none !important; }
+            
+            body.print-statement-mode #printableMemoContainer { display: none !important; }
+            body.print-statement-mode #printableStatementContainer { display: block !important; }
+            body.print-statement-mode #printableReceiptContainer { display: none !important; }
+            body.print-statement-mode #printableStockContainer { display: none !important; }
+            body.print-statement-mode #printableImportContainer { display: none !important; }
+
+            body.print-receipt-mode #printableMemoContainer { display: none !important; }
+            body.print-receipt-mode #printableStatementContainer { display: none !important; }
+            body.print-receipt-mode #printableReceiptContainer { display: block !important; }
+            body.print-receipt-mode #printableStockContainer { display: none !important; }
+            body.print-receipt-mode #printableImportContainer { display: none !important; }
+
+            body.print-stock-mode #printableMemoContainer { display: none !important; }
+            body.print-stock-mode #printableStatementContainer { display: none !important; }
+            body.print-stock-mode #printableReceiptContainer { display: none !important; }
+            body.print-stock-mode #printableStockContainer { display: block !important; }
+            body.print-stock-mode #printableImportContainer { display: none !important; }
+
+            body.print-import-mode #printableMemoContainer { display: none !important; }
+            body.print-import-mode #printableStatementContainer { display: none !important; }
+            body.print-import-mode #printableReceiptContainer { display: none !important; }
+            body.print-import-mode #printableStockContainer { display: none !important; }
+            body.print-import-mode #printableImportContainer { display: block !important; }
+
+            #printableMemoContainer *, 
+            #printableStatementContainer *, 
+            #printableReceiptContainer *,
+            #printableStockContainer *,
+            #printableImportContainer * {
+                color: #000000 !important;
+                background-color: transparent !important;
+                border-color: #000000 !important;
+                box-shadow: none !important;
+                text-shadow: none !important;
+                font-weight: 700 !important;
+            }
+
+            #printableMemoContainer .bg-black,
+            #printableMemoContainer .bg-slate-800,
+            #printableMemoContainer .bg-slate-900,
+            #printableMemoContainer .bg-slate-100,
+            #printableMemoContainer .bg-slate-200,
+            #printableMemoContainer .bg-slate-300,
+            #printableStatementContainer .bg-black,
+            #printableStatementContainer .bg-slate-300,
+            #printableReceiptContainer .bg-slate-800,
+            #printableReceiptContainer .bg-emerald-800,
+            #printableReceiptContainer .bg-slate-100,
+            #printableStockContainer .bg-black,
+            #printableImportContainer .bg-black {
+                background-color: #ffffff !important;
+                color: #000000 !important;
+                border: 1px solid #000000 !important;
+            }
+
+            .memo-page, .receipt-page, .stock-page, .import-page, .statement-page {
+                box-shadow: none !important;
+                border: 2px solid black !important;
+                padding: 10px 14px !important;
+                margin-bottom: 6px !important;
+                display: block !important;
+                page-break-inside: avoid;
+                background: white !important;
+            }
+            @page { 
+                size: A4 portrait; 
+                margin: 3mm 5mm; 
+            }
+        }
+    </style>
+</head>
+<body class="bg-slate-200 text-slate-900 min-h-screen print-memo-mode font-bold">
+
+    <!-- FULL WHITE LOGIN SCREEN -->
+    <div id="loginScreen" class="fixed inset-0 bg-white z-50 flex items-center justify-center p-4 min-h-screen no-print">
+        <div class="bg-white rounded-3xl shadow-2xl border-4 border-emerald-600 max-w-md w-full p-8 space-y-6">
+            <div class="text-center border-b-2 border-slate-200 pb-4">
+                <i class="fa-solid fa-shield-halved text-emerald-600 text-5xl mb-2"></i>
+                <h2 class="text-3xl font-black text-slate-900 font-nirmala">মেসার্স আবু নোমান</h2>
+                <p class="text-xs font-bold text-amber-700 mt-1">সার ডিলার সফটওয়্যার - ইউজার লগইন</p>
+            </div>
+            
+            <form onsubmit="handleLogin(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-black text-slate-900 mb-1">ইউজার আইডি (User ID)</label>
+                    <div class="relative">
+                        <input type="text" id="loginUsername" required placeholder="ইউজার আইডি লিখুন (যেমন: admin)" class="w-full pl-9 pr-3 py-2.5 border-2 border-slate-300 rounded-xl text-sm font-black focus:outline-none focus:ring-2 focus:ring-emerald-600 bg-slate-50 text-slate-900">
+                        <i class="fa-solid fa-user absolute left-3 top-3.5 text-slate-500 text-xs"></i>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-black text-slate-900 mb-1">পাসওয়ার্ড (Password)</label>
+                    <div class="relative">
+                        <input type="password" id="loginPassword" placeholder="নতুন আইডি হলে পাসওয়ার্ড খালি রাখুন" class="w-full pl-9 pr-3 py-2.5 border-2 border-slate-300 rounded-xl text-sm font-black focus:outline-none focus:ring-2 focus:ring-emerald-600 bg-slate-50 text-slate-900">
+                        <i class="fa-solid fa-lock absolute left-3 top-3.5 text-slate-500 text-xs"></i>
+                    </div>
+                    <p class="text-[11px] text-slate-500 mt-1 font-extrabold">* নতুন বা প্রথনবার আইডি লগইনের সময় পাসওয়ার্ড ফাঁকা রেখে সরাসরি লগইন চাপুন।</p>
+                </div>
+
+                <div id="loginErrorMsg" class="hidden text-xs font-black text-red-600 bg-red-100 p-2.5 rounded-lg border border-red-300 text-center"></div>
+
+                <button type="submit" class="w-full bg-emerald-700 hover:bg-emerald-800 text-white font-black py-3 rounded-xl text-sm shadow-xl flex items-center justify-center gap-2 transition border border-emerald-900">
+                    <i class="fa-solid fa-right-to-bracket"></i> লগইন করুন
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- FIRST TIME PASSWORD SETUP MODAL -->
+    <div id="setPasswordModal" class="hidden fixed inset-0 bg-slate-900/90 z-[60] flex items-center justify-center p-4 no-print">
+        <div class="bg-white rounded-2xl shadow-2xl border-4 border-amber-500 max-w-md w-full p-6 space-y-4">
+            <div class="text-center border-b-2 border-slate-200 pb-3">
+                <i class="fa-solid fa-key text-amber-600 text-4xl mb-2"></i>
+                <h3 class="text-xl font-black text-slate-900 font-nirmala">প্রথমবার লগইন - পাসওয়ার্ড সেট করুন</h3>
+                <p class="text-xs font-bold text-slate-600 mt-1">আইডি: <span id="setupUsernameDisplay" class="font-black text-amber-700"></span></p>
+            </div>
+            
+            <form onsubmit="handleFirstTimePasswordSetup(event)" class="space-y-3">
+                <div>
+                    <label class="block text-xs font-black text-slate-900 mb-1">আপনার নতুন পাসওয়ার্ড লিখুন</label>
+                    <input type="password" id="setupNewPassword" required placeholder="পাসওয়ার্ড লিখুন" class="w-full p-2.5 border-2 border-slate-300 rounded-lg text-sm font-black bg-slate-50 text-slate-900">
+                </div>
+                <div>
+                    <label class="block text-xs font-black text-slate-900 mb-1">পাসওয়ার্ড নিশ্চিত করুন</label>
+                    <input type="password" id="setupConfirmPassword" required placeholder="পাসওয়ার্ড পুনরায় লিখুন" class="w-full p-2.5 border-2 border-slate-300 rounded-lg text-sm font-black bg-slate-50 text-slate-900">
+                </div>
+
+                <div id="setupErrorMsg" class="hidden text-xs font-black text-red-600 bg-red-100 p-2 rounded border border-red-300 text-center"></div>
+
+                <button type="submit" class="w-full bg-amber-600 hover:bg-amber-700 text-white font-black py-2.5 rounded-xl text-xs shadow-lg border border-amber-800">
+                    পাসওয়ার্ড সেট করুন ও সফটওয়্যারে প্রবেশ করুন
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- MAIN APP CONTAINER -->
+    <div id="appContainer" class="hidden">
+        
+        <!-- TOP NAVIGATION BAR -->
+        <header class="bg-agri-900 text-white shadow-lg sticky top-0 z-40 no-print border-b-2 border-agri-700">
+            <div class="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
+                <div class="flex items-center gap-3">
+                    <i class="fa-solid fa-wheat-awn text-amber-400 text-3xl"></i>
+                    <div>
+                        <h1 class="text-2xl font-black leading-none font-nirmala tracking-wide text-white drop-shadow">মেসার্স আবু নোমান</h1>
+                        <p class="text-xs sm:text-sm font-bold text-amber-200 mt-1">বিসিআইসি ও বিএডিসি অনুমোদিত সার ডিলার ম্যানেজমেন্ট</p>
+                    </div>
+                </div>
+                
+                <div class="flex items-center gap-2">
+                    <div id="loggedInUserBadge" class="hidden sm:flex items-center gap-1.5 bg-agri-800 border border-amber-400 text-amber-300 px-3 py-1 rounded-lg text-xs font-black">
+                        <i class="fa-solid fa-user-check"></i> <span id="loggedInUserName">--</span>
+                    </div>
+
+                    <div class="relative">
+                        <input type="text" id="quickSearchInput" oninput="executeQuickSearch()" placeholder="মোবাইল / আইডি / মেমো / নাম..." class="pl-8 pr-3 py-1.5 rounded-lg text-xs font-black text-slate-900 border-2 border-amber-400 focus:outline-none focus:ring-2 focus:ring-amber-500 w-36 sm:w-56 bg-white">
+                        <i class="fa-solid fa-magnifying-glass absolute left-2.5 top-2.5 text-slate-600 text-xs font-bold"></i>
+                    </div>
+
+                    <button onclick="sendWhatsAppCurrentForm()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-black px-3.5 py-1.5 rounded-lg text-xs shadow-md flex items-center gap-1.5 transition border border-emerald-800">
+                        <i class="fa-brands fa-whatsapp text-sm"></i> হোয়াটসঅ্যাপ
+                    </button>
+                    <button onclick="saveAndPrintMemo()" class="bg-amber-400 hover:bg-amber-500 text-slate-950 font-black px-3.5 py-1.5 rounded-lg text-xs shadow-md flex items-center gap-1.5 transition border border-amber-600">
+                        <i class="fa-solid fa-print"></i> প্রিন্ট মেমো
+                    </button>
+                    <button onclick="handleLogout()" title="লগআউট" class="bg-red-600 hover:bg-red-700 text-white font-black px-3 py-1.5 rounded-lg text-xs shadow-md flex items-center gap-1.5 transition border border-red-800">
+                        <i class="fa-solid fa-right-from-bracket"></i>
+                    </button>
+                    
+                    <div class="relative">
+                        <button onclick="toggleThreeDotMenu()" class="bg-agri-700 hover:bg-agri-800 text-white p-2 rounded-lg text-xs flex items-center justify-center border border-agri-500">
+                            <i class="fa-solid fa-ellipsis-vertical text-lg"></i>
+                        </button>
+                        <div id="threeDotMenu" class="hidden absolute right-0 mt-2 w-64 bg-white rounded-lg shadow-2xl border-2 border-slate-300 py-1 z-50 text-slate-900">
+                            <button onclick="openMenuOption('dueKhataSection')" class="w-full text-left px-4 py-2 text-xs font-black hover:bg-slate-100 flex items-center gap-2 border-b text-red-700">
+                                <i class="fa-solid fa-book text-red-700"></i> ডিজিটাল বকেয়া খাতা
+                            </button>
+                            <button onclick="openMenuOption('salesDashboardCard')" class="w-full text-left px-4 py-2 text-xs font-black hover:bg-slate-100 flex items-center gap-2 border-b text-blue-800">
+                                <i class="fa-solid fa-chart-line text-blue-700"></i> দৈনিক সেলস ড্যাশবোর্ড
+                            </button>
+                            <!-- ADMIN & MANAGER ONLY OPTIONS -->
+                            <button onclick="openMenuOption('userManagementModal')" class="admin-manager-only w-full text-left px-4 py-2 text-xs font-black hover:bg-slate-100 flex items-center gap-2 border-b text-indigo-800">
+                                <i class="fa-solid fa-users-gear text-indigo-700"></i> ম্যানেজার ও স্টাফ আইডি তৈরি
+                            </button>
+                            <button onclick="openMenuOption('rateConfigModal')" class="admin-manager-only w-full text-left px-4 py-2 text-xs font-black hover:bg-slate-100 flex items-center gap-2 border-b">
+                                <i class="fa-solid fa-tags text-emerald-700"></i> সারের দর কনফিগারেশন
+                            </button>
+                            <button onclick="openMenuOption('stockModal')" class="admin-manager-only w-full text-left px-4 py-2 text-xs font-black hover:bg-slate-100 flex items-center gap-2 border-b">
+                                <i class="fa-solid fa-boxes-stacked text-amber-700"></i> লাইভ মজুদ ও সার আমদানি
+                            </button>
+                            <button onclick="clearAllSystemData()" class="admin-manager-only w-full text-left px-4 py-2 text-xs font-black hover:bg-slate-100 flex items-center gap-2 border-b text-amber-700">
+                                <i class="fa-solid fa-trash-arrow-up text-amber-700"></i> পুরাতন মেমো ও ডাটা ক্লিয়ার
+                            </button>
+                            <button onclick="openAdminSettingsModal()" class="admin-manager-only w-full text-left px-4 py-2 text-xs font-black hover:bg-slate-100 flex items-center gap-2 text-red-700">
+                                <i class="fa-solid fa-key text-red-700"></i> এডমিন নাম, সিকিউরিটি ও পাসওয়ার্ড
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- SEARCH RESULTS OVERLAY PANEL -->
+        <div id="searchResultsContainer" class="hidden max-w-7xl mx-auto px-4 mt-2 no-print">
+            <div class="bg-amber-100 border-2 border-amber-500 rounded-xl p-4 shadow-xl">
+                <div class="flex justify-between items-center mb-3 border-b-2 border-amber-300 pb-2">
+                    <h3 class="font-black text-amber-950 text-sm flex items-center gap-2">
+                        <i class="fa-solid fa-search text-amber-700"></i> অনুসন্ধান ফলাফল, মেমো, রসিদ ও স্টেটমেন্ট
+                    </h3>
+                    <button onclick="closeSearchResults()" class="text-xs bg-amber-300 hover:bg-amber-400 font-black px-2.5 py-1 rounded text-amber-950 border border-amber-500">বন্ধ করুন</button>
+                </div>
+                <div id="searchResultsList" class="space-y-3 max-h-[32rem] overflow-y-auto"></div>
+            </div>
+        </div>
+
+        <!-- MAIN CONTENT CONTAINER -->
+        <div class="max-w-7xl mx-auto p-4 space-y-4">
+            
+            <!-- POPUP MODALS SECTION (NO-PRINT) -->
+            <div class="no-print space-y-4">
+                
+                <!-- USER / MANAGER ID MANAGEMENT MODAL -->
+                <div id="userManagementModal" class="hidden bg-white p-5 rounded-xl shadow-lg border-2 border-indigo-300">
+                    <div class="flex justify-between items-center border-b-2 border-slate-200 pb-2 mb-3">
+                        <h3 class="font-black text-slate-900 text-sm flex items-center gap-2">
+                            <i class="fa-solid fa-users-gear text-indigo-700"></i> ম্যানেজার ও স্টাফ ইউজার আইডি পরিচালনা
+                        </h3>
+                        <button onclick="toggleSection('userManagementModal')" class="text-slate-600 hover:text-slate-900 font-black text-base">✕</button>
+                    </div>
+                    <form onsubmit="createNewUserAccount(event)" class="grid grid-cols-1 md:grid-cols-3 gap-3 bg-indigo-50/70 p-3 rounded-lg border-2 border-indigo-200 mb-4">
+                        <div>
+                            <label class="block text-xs font-black text-slate-900 mb-1">নতুন আইডি (Code)</label>
+                            <input type="text" id="newUserIdInput" required placeholder="যেমন: manager1" class="w-full p-2 border-2 border-slate-300 rounded text-xs font-black bg-white text-slate-900">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-black text-slate-900 mb-1">নাম</label>
+                            <input type="text" id="newUserNameInput" required placeholder="যেমন: রহিম" class="w-full p-2 border-2 border-slate-300 rounded text-xs font-black bg-white text-slate-900">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-black text-slate-900 mb-1">পদবী</label>
+                            <div class="flex gap-2">
+                                <select id="newUserRoleSelect" class="w-full p-2 border-2 border-slate-300 rounded text-xs font-black bg-white text-slate-900">
+                                    <option value="manager">ম্যানেজার (Manager)</option>
+                                    <option value="cashier">ক্যাশিয়ার / স্টাফ (Cashier)</option>
+                                </select>
+                                <button type="submit" class="bg-indigo-700 hover:bg-indigo-800 text-white text-xs font-black px-3 py-2 rounded-lg shadow whitespace-nowrap border border-indigo-900">+ তৈরি করুন</button>
+                            </div>
+                        </div>
+                    </form>
+                    <div class="overflow-x-auto border-2 border-slate-200 rounded-lg max-h-56 overflow-y-auto">
+                        <table class="w-full text-xs text-left border-collapse">
+                            <thead>
+                                <tr class="bg-indigo-100 text-indigo-950 font-black border-b-2 border-indigo-300">
+                                    <th class="p-2 border-r border-indigo-200 text-center w-12">ক্রম</th>
+                                    <th class="p-2 border-r border-indigo-200">ইউজার আইডি</th>
+                                    <th class="p-2 border-r border-indigo-200">নাম</th>
+                                    <th class="p-2 border-r border-indigo-200 text-center">পদবী</th>
+                                    <th class="p-2 text-center">অ্যাকশন</th>
+                                </tr>
+                            </thead>
+                            <tbody id="usersListTableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- ADMIN CREDENTIALS CHANGE MODAL -->
+                <div id="adminSettingsModal" class="hidden bg-white p-5 rounded-xl shadow-lg border-2 border-slate-300">
+                    <div class="flex justify-between items-center border-b-2 border-slate-200 pb-2 mb-3">
+                        <h3 class="font-black text-slate-900 text-sm flex items-center gap-2">
+                            <i class="fa-solid fa-user-gear text-red-700"></i> এডমিন নাম, আইডি ও পাসওয়ার্ড পরিবর্তন
+                        </h3>
+                        <button onclick="toggleSection('adminSettingsModal')" class="text-slate-600 hover:text-slate-900 font-black text-base">✕</button>
+                    </div>
+                    <form onsubmit="saveAdminCredentials(event)" class="space-y-3">
+                        <div>
+                            <label class="block text-xs font-black text-slate-900 mb-1">এডমিনের নাম (Admin Name)</label>
+                            <input type="text" id="newAdminName" required placeholder="যেমন: আবু নোমান" class="w-full p-2 border-2 border-slate-300 rounded text-xs font-black bg-white text-slate-900">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-black text-slate-900 mb-1">নতুন এডমিন ইউজার আইডি</label>
+                            <input type="text" id="newAdminUsername" required placeholder="যেমন: admin" class="w-full p-2 border-2 border-slate-300 rounded text-xs font-black bg-white text-slate-900">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-black text-slate-900 mb-1">নতুন পাসওয়ার্ড</label>
+                            <input type="password" id="newAdminPassword" required placeholder="নতুন পাসওয়ার্ড লিখুন" class="w-full p-2 border-2 border-slate-300 rounded text-xs font-black bg-white text-slate-900">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-black text-slate-900 mb-1">পাসওয়ার্ড নিশ্চিত করুন</label>
+                            <input type="password" id="confirmAdminPassword" required placeholder="পাসওয়ার্ড পুনরায় লিখুন" class="w-full p-2 border-2 border-slate-300 rounded text-xs font-black bg-white text-slate-900">
+                        </div>
+                        <button type="submit" class="w-full bg-emerald-700 hover:bg-emerald-800 text-white font-black py-2 rounded-lg text-xs shadow-md border border-emerald-900">আপডেট করুন</button>
+                    </form>
+                </div>
+
+                <!-- RATE CONFIG MODAL -->
+                <div id="rateConfigModal" class="hidden bg-white p-5 rounded-xl shadow-lg border-2 border-slate-300">
+                    <div class="flex justify-between items-center border-b-2 border-slate-200 pb-2 mb-3">
+                        <h3 class="font-black text-slate-900 text-sm flex items-center gap-2">
+                            <i class="fa-solid fa-sliders text-emerald-700"></i> সারের দর নির্ধারণ (বস্তা ও কেজি)
+                        </h3>
+                        <button onclick="toggleSection('rateConfigModal')" class="text-slate-600 hover:text-slate-900 font-black text-base">✕</button>
+                    </div>
+                    <div id="rateConfigContainer" class="grid grid-cols-1 md:grid-cols-2 gap-3"></div>
+                    <button onclick="saveCustomRates()" class="mt-4 w-full bg-emerald-700 hover:bg-emerald-800 text-white font-black py-2.5 rounded-lg text-xs shadow-md border border-emerald-900">মূল্য তালিকা সংরক্ষণ করুন</button>
+                </div>
+
+                <!-- STOCK MANAGEMENT MODAL -->
+                <div id="stockModal" class="hidden bg-white p-5 rounded-xl shadow-lg border-2 border-slate-300">
+                    <div class="flex flex-wrap justify-between items-center border-b-2 border-slate-200 pb-2 mb-3 gap-2">
+                        <h3 class="font-black text-slate-900 text-sm flex items-center gap-2">
+                            <i class="fa-solid fa-warehouse text-amber-700"></i> লাইভ সারের মজুদ ও নতুন সার আমদানি
+                        </h3>
+                        <div class="flex items-center gap-2">
+                            <button onclick="printStockStatement()" class="bg-amber-600 hover:bg-amber-700 text-white text-xs font-black px-2.5 py-1.5 rounded-lg shadow flex items-center gap-1 border border-amber-800"><i class="fa-solid fa-print"></i> মজুদ প্রিন্ট</button>
+                            <button onclick="downloadStockPDF()" class="bg-blue-600 hover:bg-blue-700 text-white text-xs font-black px-2.5 py-1.5 rounded-lg shadow flex items-center gap-1 border border-blue-800"><i class="fa-solid fa-file-pdf"></i> PDF</button>
+                            <button onclick="printImportStatement()" class="bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-black px-2.5 py-1.5 rounded-lg shadow flex items-center gap-1 border border-emerald-900 ml-2"><i class="fa-solid fa-print"></i> আমদানি প্রিন্ট</button>
+                            <button onclick="downloadImportPDF()" class="bg-blue-600 hover:bg-blue-700 text-white text-xs font-black px-2.5 py-1.5 rounded-lg shadow flex items-center gap-1 border border-blue-800"><i class="fa-solid fa-file-pdf"></i> PDF</button>
+                            <button onclick="toggleSection('stockModal')" class="text-slate-600 hover:text-slate-900 font-black text-base ml-2">✕</button>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4 bg-amber-100/70 p-3 rounded-lg border-2 border-amber-300">
+                        <div>
+                            <label class="block text-xs font-black text-slate-900 mb-1">আমদানির তারিখ</label>
+                            <input type="date" id="importDate" class="w-full p-2 border-2 border-slate-300 rounded text-xs font-black bg-white text-slate-900">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-black text-slate-900 mb-1">সারের নাম</label>
+                            <select id="importName" class="w-full p-2 border-2 border-slate-300 rounded text-xs font-black bg-white text-slate-900">
+                                <option value="ইউরিয়া সার (Urea)">ইউরিয়া সার (Urea)</option>
+                                <option value="টিএসপি সার (TSP)">টিএসপি সার (TSP)</option>
+                                <option value="ডিএপি সার (DAP)">ডিএপি সার (DAP)</option>
+                                <option value="এমওপি - পটাশ (MOP)">এমওপি - পটাশ (MOP)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-black text-slate-900 mb-1">পরিমাণ (বস্তা)</label>
+                            <div class="flex gap-2">
+                                <input type="number" id="importQty" min="1" placeholder="বস্তার সংখ্যা" class="w-full p-2 border-2 border-slate-300 rounded text-xs font-black bg-white text-slate-900">
+                                <button onclick="addStockImport()" class="bg-amber-600 hover:bg-amber-700 text-white text-xs font-black px-3.5 py-2 rounded-lg shadow whitespace-nowrap border border-amber-800">যোগ করুন</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="stockSummaryCards" class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-5"></div>
+                    
+                    <div class="pt-4 border-t-2 border-slate-300">
+                        <div class="flex flex-wrap justify-between items-center mb-3 gap-2">
+                            <h4 class="text-xs font-black text-slate-900 flex items-center gap-1.5"><i class="fa-solid fa-file-invoice-dollar text-emerald-700"></i> তারিখ অনুযায়ী সার আমদানির বিবরণী</h4>
+                            <div class="flex items-center gap-2">
+                                <label class="text-xs font-black text-slate-800">তারিখ ফিল্টার:</label>
+                                <input type="date" id="stockFilterDate" onchange="updateLiveStockDisplay()" class="p-1 border-2 border-slate-300 rounded text-xs font-black bg-white text-slate-900">
+                                <button onclick="clearStockDateFilter()" class="text-xs bg-slate-300 hover:bg-slate-400 text-slate-900 font-black px-2 py-1 rounded">সব</button>
+                            </div>
+                        </div>
+                        <div class="overflow-x-auto max-h-64 overflow-y-auto border-2 border-slate-300 rounded-lg">
+                            <table class="w-full text-xs text-left border-collapse">
+                                <thead>
+                                    <tr class="bg-amber-200 text-amber-950 font-black border-b-2 border-amber-400">
+                                        <th class="p-2 border-r border-amber-300 text-center w-12">ক্রম</th>
+                                        <th class="p-2 border-r border-amber-300 text-center">আমদানির তারিখ</th>
+                                        <th class="p-2 border-r border-amber-300">সারের নাম</th>
+                                        <th class="p-2 border-r border-amber-300 text-center">আমদানির পরিমাণ (বস্তা)</th>
+                                        <th class="p-2 text-center">অ্যাকশন</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="importHistoryTableBody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- DUE KHATA SECTION -->
+                <div id="dueKhataSection" class="hidden bg-white p-5 rounded-xl shadow-lg border-2 border-slate-300">
+                    <div class="flex justify-between items-center border-b-2 border-slate-200 pb-2 mb-3">
+                        <h3 class="font-black text-slate-900 text-sm flex items-center gap-2">
+                            <i class="fa-solid fa-book-bookmark text-red-700"></i> ডিজিটাল বকেয়া খাতা
+                        </h3>
+                        <div class="flex items-center gap-2">
+                            <span class="text-xs bg-red-100 text-red-900 border border-red-300 font-black px-2.5 py-1 rounded-md">মোট বকেয়া: ৳ <span id="totalOverallDue">০</span></span>
+                            <button onclick="toggleSection('dueKhataSection')" class="text-slate-600 hover:text-slate-900 font-black text-base ml-2">✕</button>
+                        </div>
+                    </div>
+                    <div id="allDueList" class="space-y-2 max-h-72 overflow-y-auto"></div>
+                </div>
+
+                <!-- SALES DASHBOARD CARD -->
+                <div id="salesDashboardCard" class="hidden bg-white p-5 rounded-xl shadow-lg border-2 border-slate-300">
+                    <div class="flex justify-between items-center border-b-2 border-slate-200 pb-2 mb-3">
+                        <h3 class="font-black text-slate-900 text-sm flex items-center gap-2">
+                            <i class="fa-solid fa-chart-pie text-blue-700"></i> দৈনিক সেলস ড্যাশবোর্ড
+                        </h3>
+                        <div class="flex items-center gap-2">
+                            <input type="date" id="reportDate" onchange="updateSalesDashboard()" class="p-1 border-2 border-slate-300 rounded text-xs font-black bg-white text-slate-900">
+                            <button onclick="toggleSection('salesDashboardCard')" class="text-slate-600 hover:text-slate-900 font-black text-base ml-2">✕</button>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
+                        <div class="bg-blue-100/70 border-2 border-blue-300 p-3 rounded-lg text-center">
+                            <span class="text-xs text-blue-950 font-black">মোট বিক্রি</span>
+                            <p class="text-xl font-black text-blue-950">৳ <span id="dashTotalSales">০</span></p>
+                        </div>
+                        <div class="bg-emerald-100/70 border-2 border-emerald-300 p-3 rounded-lg text-center">
+                            <span class="text-xs text-emerald-950 font-black">নগদ আদায়</span>
+                            <p class="text-xl font-black text-emerald-950">৳ <span id="dashPaidSales">০</span></p>
+                        </div>
+                        <div class="bg-red-100/70 border-2 border-red-300 p-3 rounded-lg text-center">
+                            <span class="text-xs text-red-950 font-black">আজকের বকেয়া</span>
+                            <p class="text-xl font-black text-red-950">৳ <span id="dashDueSales">০</span></p>
+                        </div>
+                        <div onclick="toggleDailyMemosList()" class="bg-purple-100/70 border-2 border-purple-300 p-3 rounded-lg text-center cursor-pointer hover:bg-purple-200 transition relative">
+                            <span class="text-xs text-purple-950 font-black">মেমো সংখ্যা (ক্লিক করুন)</span>
+                            <p class="text-xl font-black text-purple-950"><span id="dashCustomerCount">০</span> টি</p>
+                        </div>
+                    </div>
+                    <div id="dailyMemosDetailContainer" class="hidden mb-4 bg-slate-100 p-3 rounded-lg border-2 border-purple-300">
+                        <div class="flex justify-between items-center mb-2 border-b border-purple-300 pb-1">
+                            <h4 class="text-xs font-black text-purple-950">আজকের মেমো তালিকা</h4>
+                            <button onclick="toggleDailyMemosList()" class="text-[10px] bg-purple-300 hover:bg-purple-400 text-purple-950 font-black px-2 py-0.5 rounded border border-purple-400">বন্ধ</button>
+                        </div>
+                        <div id="dailyMemosList" class="space-y-2 max-h-72 overflow-y-auto"></div>
+                    </div>
+                    <div class="bg-slate-100 p-3 rounded-lg border-2 border-slate-300">
+                        <h4 class="text-xs font-black text-slate-900 mb-2">সারভিত্তিক মোট বিক্রি:</h4>
+                        <ul id="dashFertilizerBreakdown" class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs font-bold"></ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- FORM & PREVIEW GRID -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                <div class="lg:col-span-5 space-y-4 no-print">
+                    
+                    <!-- CUSTOMER INFO FORM -->
+                    <div class="bg-white p-5 rounded-xl shadow-md border-2 border-slate-300">
+                        <div class="flex justify-between items-center border-b-2 border-slate-200 pb-2 mb-3">
+                            <h2 class="text-lg font-black text-agri-900 flex items-center gap-2">
+                                <i class="fa-solid fa-user-pen text-agri-700"></i> গ্রাহক তথ্য
+                            </h2>
+                            <span id="memoStatusBadge" class="text-xs font-black px-2.5 py-1 rounded border-2 hidden"></span>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                            <div class="md:col-span-2 bg-slate-100 p-3 rounded-lg border-2 border-slate-300">
+                                <label class="block text-xs font-black text-slate-900 mb-1.5">গ্রাহকের ধরন নির্বাচন করুন:</label>
+                                <div class="flex gap-4 text-xs font-black">
+                                    <label class="flex items-center gap-1.5 cursor-pointer text-slate-900">
+                                        <input type="radio" name="customerType" value="farmer" checked onchange="handleCustomerTypeChange()" class="accent-agri-700 w-4 h-4">
+                                        <span>🌾 কৃষক (খুচরা)</span>
+                                    </label>
+                                    <label class="flex items-center gap-1.5 cursor-pointer text-slate-900">
+                                        <input type="radio" name="customerType" value="retailer" onchange="handleCustomerTypeChange()" class="accent-agri-700 w-4 h-4">
+                                        <span>🏪 সাব-ডিলারি (পাইকারি)</span>
+                                    </label>
+                                    <label class="flex items-center gap-1.5 cursor-pointer text-slate-900">
+                                        <input type="radio" name="customerType" value="buyer" onchange="handleCustomerTypeChange()" class="accent-agri-700 w-4 h-4">
+                                        <span>👤 সাধারণ ক্রেতা</span>
+                                    </label>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-black text-slate-900 mb-1">কাস্টমার আইডি</label>
+                                <input type="text" id="custID" readonly class="w-full p-2 border-2 border-slate-300 rounded text-sm font-black bg-slate-200 text-slate-900 outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-black text-slate-900 mb-1">মেমো আইডি</label>
+                                <input type="text" id="memoNo" readonly class="w-full p-2 border-2 border-slate-300 rounded text-sm font-black bg-amber-100 text-slate-900 outline-none">
+                            </div>
+                            <div class="md:col-span-2">
+                                <label class="block text-xs font-black text-slate-900 mb-1">মেমোর তারিখ</label>
+                                <input type="date" id="memoDate" onchange="updateMemo()" class="w-full p-2 border-2 border-amber-400 rounded text-sm font-black bg-amber-50 text-slate-900 outline-none">
+                            </div>
+                            <div class="md:col-span-2">
+                                <label class="block text-xs font-black text-slate-900 mb-1">মোবাইল নম্বর <span class="text-red-600 font-black">*</span></label>
+                                <input type="text" id="custPhone" placeholder="017xxxxxxxx" oninput="autoCheckReturningCustomer(this.value); updateMemo();" class="w-full p-2 border-2 border-amber-400 rounded text-sm font-black outline-none bg-amber-50 text-slate-900 focus:bg-white focus:ring-2 focus:ring-amber-500">
+                            </div>
+                            <div class="md:col-span-2">
+                                <label class="block text-xs font-black text-slate-900 mb-1">গ্রাহক / মালিকের নাম <span class="text-red-600 font-black">*</span></label>
+                                <input type="text" id="custName" placeholder="গ্রাহক বা মালিকের নাম" oninput="updateMemo()" class="w-full p-2 border-2 border-slate-300 rounded text-sm font-extrabold outline-none bg-white text-slate-900 focus:ring-2 focus:ring-agri-600">
+                            </div>
+                            <div id="retailerStoreContainer" class="hidden md:col-span-2 bg-blue-100/70 p-3 rounded-lg border-2 border-blue-300">
+                                <label class="block text-xs font-black text-blue-950 mb-1">দোকানের নাম <span class="text-red-600 font-black">*</span></label>
+                                <input type="text" id="custStoreName" placeholder="যেমন: মেসার্স রহিমা ট্রেডার্স..." oninput="updateMemo()" class="w-full p-2 border-2 border-blue-400 rounded text-sm font-black outline-none bg-white text-slate-900">
+                            </div>
+                            <div class="md:col-span-2" id="addressContainer">
+                                <label class="block text-xs font-black text-slate-900 mb-1">ঠিকানা / গ্রাম / বাজার <span id="reqAddress" class="text-red-600">*</span></label>
+                                <input type="text" id="custBlock" placeholder="ঠিকানা" oninput="updateMemo()" class="w-full p-2 border-2 border-slate-300 rounded text-sm font-extrabold outline-none bg-white text-slate-900">
+                            </div>
+                            <div id="farmerFieldsContainer" class="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-3 pt-2 border-t-2 border-slate-200">
+                                <div>
+                                    <label class="block text-xs font-black text-slate-900 mb-1">এনআইডি (NID) <span id="reqNid" class="text-red-600">*</span></label>
+                                    <input type="text" id="custNid" placeholder="এনআইডি নম্বর" oninput="updateMemo()" class="w-full p-2 border-2 border-amber-400 rounded text-sm font-extrabold outline-none bg-amber-50 text-slate-900">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-black text-slate-900 mb-1">কৃষক কার্ড নম্বর</label>
+                                    <input type="text" id="custFarmerCard" placeholder="কৃষক কার্ড নম্বর" oninput="updateMemo()" class="w-full p-2 border-2 border-amber-400 rounded text-sm font-extrabold outline-none bg-amber-50 text-slate-900">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- FERTILIZER ITEMS FORM WITH RATE DISPLAY & ADJUSTMENT -->
+                    <div class="bg-white p-5 rounded-xl shadow-md border-2 border-slate-300">
+                        <div class="flex justify-between items-center border-b-2 border-slate-200 pb-2 mb-3">
+                            <h2 class="text-lg font-black text-agri-900 flex items-center gap-2">
+                                <i class="fa-solid fa-list-check text-agri-700"></i> সারের বিবরণ ও সেলস আইটেম
+                            </h2>
+                            <button onclick="addItem()" class="bg-agri-700 text-white text-xs font-black px-3 py-1.5 rounded-lg hover:bg-agri-800 transition shadow">+ আইটেম যোগ</button>
+                        </div>
+                        <div class="mb-4 bg-emerald-100/70 p-3 rounded-lg border-2 border-emerald-300">
+                            <div class="flex justify-between items-center mb-2">
+                                <span class="text-xs font-black text-emerald-950">১-ক্লিক সার সিলেক্ট:</span>
+                                <span id="activeRateBadge" class="text-xs font-black px-2.5 py-0.5 rounded border bg-emerald-300 text-emerald-950 border-emerald-500">খুচরা দর (কৃষক)</span>
+                            </div>
+                            <div class="flex flex-wrap gap-2">
+                                <button onclick="addPreset('ইউরিয়া সার (Urea)', 'বস্তা (৫০ কেজি)')" class="bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-black px-3 py-1.5 rounded-md shadow border border-emerald-900">🌾 ইউরিয়া</button>
+                                <button onclick="addPreset('টিএসপি সার (TSP)', 'বস্তা (৫০ কেজি)')" class="bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-black px-3 py-1.5 rounded-md shadow border border-emerald-900">🌾 টিএসপি</button>
+                                <button onclick="addPreset('ডিএপি সার (DAP)', 'বস্তা (৫০ কেজি)')" class="bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-black px-3 py-1.5 rounded-md shadow border border-emerald-900">🌾 ডিএপি</button>
+                                <button onclick="addPreset('এমওপি - পটাশ (MOP)', 'বস্তা (৫০ কেজি)')" class="bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-black px-3 py-1.5 rounded-md shadow border border-emerald-900">🌾 এমওপি/পটাশ</button>
+                            </div>
+                        </div>
+
+                        <!-- DYNAMIC ITEMS INPUT CONTAINER -->
+                        <div id="itemInputs" class="space-y-3"></div>
+
+                        <div class="mt-5 pt-4 border-t-2 border-slate-200 grid grid-cols-3 gap-3">
+                            <div>
+                                <label class="block text-xs font-black text-slate-900 mb-1">ছাড় (৳)</label>
+                                <input type="number" id="discount" value="0" min="0" oninput="updateMemo()" class="w-full p-2 border-2 border-slate-300 rounded text-sm font-black outline-none bg-white text-slate-900">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-black text-slate-900 mb-1">পরিবহন (৳)</label>
+                                <input type="number" id="transport" value="0" min="0" oninput="updateMemo()" class="w-full p-2 border-2 border-slate-300 rounded text-sm font-black outline-none bg-white text-slate-900">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-black text-slate-900 mb-1">জমা (৳)</label>
+                                <input type="number" id="paid" value="0" min="0" oninput="updateMemo()" class="w-full p-2 border-2 border-emerald-500 rounded text-sm font-black text-emerald-900 bg-emerald-50 outline-none">
+                            </div>
+                        </div>
+                        
+                        <div class="mt-4 pt-3 border-t-2 border-slate-200 flex gap-2">
+                            <button onclick="resetFormForNewCustomer()" class="w-1/3 bg-slate-300 hover:bg-slate-400 text-slate-950 font-black py-2.5 rounded-lg text-xs border border-slate-400 transition">
+                                নতুন ফরম
+                            </button>
+                            <button onclick="sendWhatsAppCurrentForm()" class="w-1/3 bg-emerald-600 hover:bg-emerald-700 text-white font-black py-2.5 rounded-lg text-xs shadow-md flex items-center justify-center gap-1.5 border border-emerald-800 transition">
+                                <i class="fa-brands fa-whatsapp text-sm"></i> WhatsApp
+                            </button>
+                            <button onclick="saveAndPrintMemo()" class="w-1/3 bg-agri-800 hover:bg-agri-900 text-white font-black py-2.5 rounded-lg text-xs shadow-md flex items-center justify-center gap-1.5 border border-agri-950 transition">
+                                <i class="fa-solid fa-print text-sm"></i> প্রিন্ট মেমো
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- PRINT PREVIEW SECTION -->
+                <div class="lg:col-span-7">
+                    <div class="lg:sticky lg:top-20">
+                        
+                        <!-- CASH MEMO PRINT CONTAINER -->
+                        <div id="printableMemoContainer" class="space-y-4">
+                            <div class="memo-page bg-white p-5 rounded-xl shadow-xl border-2 border-black text-black">
+                                <div class="text-center border-b-2 border-black pb-2 mb-2">
+                                    <h1 class="text-3xl font-black text-black my-0 leading-tight font-nirmala">মেসার্স আবু নোমান</h1>
+                                    <p class="text-sm font-black text-black my-0.5">বিসিআইসি ও বিএডিসি অনুমোদিত সার ডিলার</p>
+                                    <p class="text-xs sm:text-sm font-extrabold text-black my-0">প্রোঃ আবু নোমান | মোবাইল: 017593330003</p>
+                                    <p class="text-xs sm:text-sm font-bold text-black my-0">দক্ষিণ বাজার, হায়দারগঞ্জ, রায়পুর, লক্ষ্মীপুর</p>
+                                </div>
+                                <div class="flex justify-between items-center mb-2">
+                                    <div class="text-xs font-black text-black border border-black px-2 py-0.5 flex flex-col justify-center leading-snug">
+                                        <div>কাস্টমার আইডি: <span class="pCustID">FM-0001</span></div>
+                                        <div>মেমো নম্বর: <span class="pMemoNo">INV-01</span></div>
+                                    </div>
+                                    <span class="bg-black text-white font-black text-xs px-3 py-1 uppercase tracking-wider rounded-sm">ক্যাশ মেমো (গ্রাহক কপি)</span>
+                                    <div class="text-right text-xs font-black text-black border border-black px-2 py-0.5">
+                                        <div>তারিখ: <span class="pMemoDate">--</span></div>
+                                        <div>প্রস্তুতকারক: <span class="pPreparedBy font-bold">--</span></div>
+                                    </div>
+                                </div>
+                                <div class="grid grid-cols-2 text-xs border-2 border-black p-2 rounded mb-2 gap-y-1 font-bold text-black bg-slate-50">
+                                    <div class="pStoreNameRow hidden col-span-2 border-b border-black pb-1 mb-1">
+                                        <strong>দোকানের নাম:</strong> <span class="pCustStoreName text-sm font-black">--</span>
+                                    </div>
+                                    <div><strong>গ্রাহকের নাম:</strong> <span class="pCustName text-sm font-black">--</span></div>
+                                    <div class="text-right"><strong>মোবাইল:</strong> <span class="pCustPhone text-sm font-bold font-sans">--</span></div>
+                                    <div><strong>ঠিকানা:</strong> <span class="pCustBlock font-bold">--</span></div>
+                                    <div class="text-right"><strong>ধরন:</strong> <span class="pCustType font-black">কৃষক</span></div>
+                                </div>
+                                <div class="overflow-x-auto">
+                                    <table class="w-full text-xs text-left mb-2 border-collapse border-2 border-black text-black">
+                                        <thead>
+                                            <tr class="bg-slate-300 text-black font-black border-b-2 border-black text-center">
+                                                <th class="p-1 border border-black text-center w-8">ক্রম</th>
+                                                <th class="p-1 border border-black text-left">সারের বিবরণ</th>
+                                                <th class="p-1 border border-black text-center">একক</th>
+                                                <th class="p-1 border border-black text-center">পরিমাণ</th>
+                                                <th class="p-1 border border-black text-right">দর (৳)</th>
+                                                <th class="p-1 border border-black text-right">মোট (৳)</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody class="pTableBody"></tbody>
+                                    </table>
+                                </div>
+                                <div class="flex justify-end text-xs font-bold text-black mb-3">
+                                    <div class="w-7/12 sm:w-1/2 space-y-1 border-t-2 border-black pt-1">
+                                        <div class="flex justify-between"><span>মোট:</span><span>৳ <span class="pSubTotal text-sm font-black">০</span></span></div>
+                                        <div class="flex justify-between"><span>ছাড় (-):</span><span>৳ <span class="pDiscount font-bold">০</span></span></div>
+                                        <div class="flex justify-between"><span>পরিবহন (+):</span><span>৳ <span class="pTransport font-bold">০</span></span></div>
+                                        <div class="flex justify-between font-black border-t border-black pt-0.5"><span>মোট বিল:</span><span>৳ <span class="pCurrentNetBill text-sm">০</span></span></div>
+                                        <div class="flex justify-between text-black font-black bg-slate-100 px-1 py-0.5 rounded border border-black">
+                                            <span>পূর্বের বকেয়া (+):</span><span>৳ <span class="pPreviousDue text-sm">০</span></span>
+                                        </div>
+                                        <div class="flex justify-between font-black text-sm border-t-2 border-b-2 border-black py-0.5 bg-slate-200 px-1">
+                                            <span>সর্বমোট প্রদেয়:</span><span>৳ <span class="pGrandTotal">০</span></span>
+                                        </div>
+                                        <div class="flex justify-between text-black font-black"><span>জমা (-):</span><span>৳ <span class="pPaid text-sm">০</span></span></div>
+                                        <div class="flex justify-between font-black text-sm border-t-2 border-black pt-1 text-black">
+                                            <span class="pDueLabel">অবশিষ্ট বকেয়া:</span><span>৳ <span class="pDue">০</span></span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="pt-4 flex justify-between items-end text-xs text-black font-black">
+                                    <div class="text-center"><div class="border-t-2 border-black w-24 mb-1"></div><p>ক্রেতার স্বাক্ষর</p></div>
+                                    <div class="text-center">
+                                        <div class="border-t-2 border-black w-32 mb-1"></div>
+                                        <p>বিক্রেতা / প্রস্তুতকারক</p>
+                                        <p class="pPreparedBy font-bold text-[10px]">--</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- CUT LINE -->
+                            <div class="relative py-1 text-center hidden print:block">
+                                <div class="border-b-2 border-dashed border-black w-full absolute top-1/2"></div>
+                                <span class="relative bg-white px-3 text-xs font-black text-black border-2 border-black">✂️ দোকান কপি (নিচে)</span>
+                            </div>
+
+                            <div class="memo-page bg-white p-5 rounded-xl shadow-xl border-2 border-black text-black hidden print:block" id="shopCopyMemo">
+                                <!-- Replicated dynamically via JS -->
+                            </div>
+                        </div>
+
+                        <!-- PRINTABLE CUSTOMER STATEMENT CONTAINER -->
+                        <div id="printableStatementContainer" class="hidden statement-page bg-white p-6 rounded-xl border-2 border-black text-black">
+                            <div class="text-center border-b-2 border-black pb-2 mb-3">
+                                <h1 class="text-3xl font-black text-black my-0 font-nirmala">মেসার্স আবু নোমান</h1>
+                                <p class="text-sm font-black text-black my-0.5">বিসিআইসি ও বিএডিসি অনুমোদিত সার ডিলার</p>
+                                <div class="mt-2 inline-block bg-black text-white px-4 py-1 text-xs font-black uppercase tracking-wider rounded">
+                                    গ্রাহক হিসাব বিবরণী (Statement)
+                                </div>
+                            </div>
+                            <div id="stmtCustomerDetails" class="grid grid-cols-2 text-xs border-2 border-black p-3 rounded mb-3 font-bold gap-y-1 bg-slate-50 text-black"></div>
+                            <table class="w-full text-xs text-left mb-3 border-collapse border-2 border-black text-black">
+                                <thead>
+                                    <tr class="bg-slate-300 text-black font-black border-b-2 border-black">
+                                        <th class="p-1.5 border border-black text-center">ক্রম</th>
+                                        <th class="p-1.5 border border-black text-center">তারিখ</th>
+                                        <th class="p-1.5 border border-black">বিবরণ / মেমো / রশিদ</th>
+                                        <th class="p-1.5 border border-black text-center">প্রস্তুতকারক</th>
+                                        <th class="p-1.5 border border-black text-right">বিল (৳)</th>
+                                        <th class="p-1.5 border border-black text-right">জমা (৳)</th>
+                                        <th class="p-1.5 border border-black text-right">ব্যালেন্স / বকেয়া (৳)</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="stmtTableBody"></tbody>
+                            </table>
+                            <div class="pt-4 flex justify-between items-end text-xs text-black font-black">
+                                <div class="text-center"><div class="border-t-2 border-black w-24 mb-1"></div><p>গ্রাহকের স্বাক্ষর</p></div>
+                                <div class="text-center">
+                                    <div class="border-t-2 border-black w-32 mb-1"></div>
+                                    <p>প্রিন্ট প্রস্তুতকারক: <span id="stmtPrintedBy" class="font-bold">--</span></p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- PRINTABLE RECEIPT CONTAINER (বকেয়া জমার রশিদ) -->
+                        <div id="printableReceiptContainer" class="hidden space-y-4">
+                            <div class="receipt-page bg-white p-5 rounded-xl border-2 border-black text-black">
+                                <div class="text-center border-b-2 border-black pb-2 mb-2">
+                                    <h1 class="text-3xl font-black text-black my-0 font-nirmala">মেসার্স আবু নোমান</h1>
+                                    <p class="text-sm font-black text-black my-0.5">বিসিআইসি ও বিএডিসি অনুমোদিত সার ডিলার</p>
+                                    <div class="mt-1 inline-block bg-black text-white px-3 py-0.5 text-xs font-black uppercase tracking-wider rounded">
+                                        টাকা জমার রশিদ (গ্রাহক কপি)
+                                    </div>
+                                </div>
+                                <div class="flex justify-between items-center text-xs mb-2 border-b border-black pb-1">
+                                    <div>রশিদ নম্বর: <strong id="rcpNo1">--</strong></div>
+                                    <div>তারিখ: <strong id="rcpDate1">--</strong></div>
+                                    <div>প্রস্তুতকারক: <strong id="rcpPreparedBy1">--</strong></div>
+                                </div>
+                                <div id="rcpCustomerInfo1" class="text-xs border border-black p-2 rounded mb-2 space-y-1 font-bold"></div>
+                                <div class="border-2 border-black p-3 rounded mb-2 text-xs space-y-1.5 font-bold bg-slate-50">
+                                    <div class="flex justify-between"><span>পূর্বের মোট বকেয়া:</span><span>৳ <span id="rcpPrevDue1">০</span></span></div>
+                                    <div class="flex justify-between text-emerald-800 font-black text-sm"><span>আজকের জমা:</span><span>৳ <span id="rcpPaid1">০</span></span></div>
+                                    <div class="flex justify-between border-t border-black pt-1 font-black text-sm"><span>বর্তমান বকেয়া:</span><span>৳ <span id="rcpRemaining1">০</span></span></div>
+                                </div>
+                                <div class="pt-4 flex justify-between items-end text-xs text-black font-black">
+                                    <div class="text-center"><div class="border-t-2 border-black w-24 mb-1"></div><p>গ্রহীতার স্বাক্ষর</p></div>
+                                    <div class="text-center"><div class="border-t-2 border-black w-24 mb-1"></div><p>আদায়কারী / ক্যাশিয়ার</p></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- PRINTABLE LIVE STOCK REPORT CONTAINER -->
+                        <div id="printableStockContainer" class="hidden bg-white p-6 rounded-xl border-2 border-black text-black">
+                            <div class="text-center border-b-2 border-black pb-2 mb-3">
+                                <h1 class="text-3xl font-black text-black my-0 font-nirmala">মেসার্স আবু নোমান</h1>
+                                <div class="mt-2 inline-block bg-black text-white px-4 py-1 text-xs font-black uppercase tracking-wider rounded">
+                                    বর্তমান লাইভ মজুদ বিবরণী (Live Stock)
+                                </div>
+                            </div>
+                            <div class="flex justify-between text-xs mb-3 font-bold border-b border-black pb-1">
+                                <div>তারিখ: <strong id="pStockGenDate">--</strong></div>
+                            </div>
+                            <table class="w-full text-xs text-left mb-3 border-collapse border-2 border-black text-black">
+                                <thead>
+                                    <tr class="bg-slate-300 text-black font-black border-b-2 border-black">
+                                        <th class="p-1.5 border border-black text-center">ক্রম</th>
+                                        <th class="p-1.5 border border-black">সারের নাম</th>
+                                        <th class="p-1.5 border border-black text-center">মোট আমদানি (বস্তা)</th>
+                                        <th class="p-1.5 border border-black text-center">মোট বিক্রি (বস্তা)</th>
+                                        <th class="p-1.5 border border-black text-center font-black">অবশিষ্ট মজুদ (বস্তা)</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="pStockTableBody"></tbody>
+                            </table>
+                        </div>
+
+                        <!-- PRINTABLE IMPORT STATEMENT CONTAINER -->
+                        <div id="printableImportContainer" class="hidden bg-white p-6 rounded-xl border-2 border-black text-black">
+                            <div class="text-center border-b-2 border-black pb-2 mb-3">
+                                <h1 class="text-3xl font-black text-black my-0 font-nirmala">মেসার্স আবু নোমান</h1>
+                                <div class="mt-2 inline-block bg-black text-white px-4 py-1 text-xs font-black uppercase tracking-wider rounded">
+                                    সার আমদানির বিবরণী (Import Statement)
+                                </div>
+                            </div>
+                            <div class="flex justify-between text-xs mb-3 font-bold border-b border-black pb-1">
+                                <div>তারিখ ফিল্টার: <strong id="pImportFilterDate">সব তারিখ</strong></div>
+                                <div>প্রিন্টের সময়: <strong id="pImportGenDate">--</strong></div>
+                            </div>
+                            <table class="w-full text-xs text-left mb-3 border-collapse border-2 border-black text-black">
+                                <thead>
+                                    <tr class="bg-slate-300 text-black font-black border-b-2 border-black">
+                                        <th class="p-1.5 border border-black text-center">ক্রম</th>
+                                        <th class="p-1.5 border border-black text-center">আমদানির তারিখ</th>
+                                        <th class="p-1.5 border border-black">সারের নাম</th>
+                                        <th class="p-1.5 border border-black text-center">পরিমাণ (বস্তা)</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="pImportTableBody"></tbody>
+                                <tfoot>
+                                    <tr class="bg-slate-200 font-black border-t-2 border-black">
+                                        <td colspan="3" class="p-2 border border-black text-right">সর্বমোট আমদানি:</td>
+                                        <td class="p-2 border border-black text-center" id="pImportTotalBags">০ বস্তা</td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JAVASCRIPT APP LOGIC WITH SHA-256 HASHING SECURITY -->
+    <script>
+        function hashPassword(str) {
+            return str ? CryptoJS.SHA256(str).toString() : '';
+        }
+
+        function toBnNum(num) {
+            if (num === null || num === undefined || num === '') return '০';
+            const bnDigits = ['০', '১', '২', '৩', '৪', '৫', '৬', '৭', '৮', '৯'];
+            return num.toString().replace(/\d/g, d => bnDigits[d]);
+        }
+
+        function formatDisplayDate(dateStr) {
+            if (!dateStr) return '--';
+            const parts = dateStr.split('-');
+            if (parts.length === 3) return `${toBnNum(parts[2])}/${toBnNum(parts[1])}/${toBnNum(parts[0])}`;
+            return dateStr;
+        }
+
+        function getCurrentTime() {
+            const now = new Date();
+            let hours = now.getHours(), minutes = now.getMinutes();
+            const ampm = hours >= 12 ? 'PM' : 'AM';
+            hours = hours % 12; hours = hours ? hours : 12;
+            minutes = minutes < 10 ? '0' + minutes : minutes;
+            return `${toBnNum(hours)}:${toBnNum(minutes)} ${ampm}`;
+        }
+
+        let FERTILIZER_RATES = JSON.parse(localStorage.getItem('fertilizer_rates_db')) || {
+            'retail': {
+                'ইউরিয়া সার (Urea)': { bag: 1350, loose: 27 },
+                'টিএসপি সার (TSP)': { bag: 1350, loose: 27 },
+                'ডিএপি সার (DAP)': { bag: 1050, loose: 21 },
+                'এমওপি - পটাশ (MOP)': { bag: 1000, loose: 20 }
+            },
+            'subdealer': {
+                'ইউরিয়া সার (Urea)': { bag: 1200, loose: 24 },
+                'টিএসপি সার (TSP)': { bag: 1200, loose: 24 },
+                'ডিএপি সার (DAP)': { bag: 900, loose: 18 },
+                'এমওপি - পটাশ (MOP)': { bag: 850, loose: 17 }
+            }
+        };
+
+        let items = [];
+        let customerDatabase = JSON.parse(localStorage.getItem('fertilizer_customers_db')) || [];
+        let memoDatabase = JSON.parse(localStorage.getItem('fertilizer_memos_db')) || [];
+        let receiptDatabase = JSON.parse(localStorage.getItem('fertilizer_receipts_db')) || [];
+        let stockImports = JSON.parse(localStorage.getItem('fertilizer_stock_db')) || [];
+        
+        // NO PLAIN TEXT PASSWORDS IN CODE - HASHED/DYNAMIC FIRST-TIME SETUP
+        let usersDatabase = JSON.parse(localStorage.getItem('fertilizer_users_db')) || [
+            { username: 'admin', passwordHash: '', name: 'আবু নোমান', role: 'admin', isFirstLogin: true },
+            { username: 'manager', passwordHash: '', name: 'ম্যানেজার নোমান', role: 'manager', isFirstLogin: true },
+            { username: 'staff', passwordHash: '', name: 'ক্যাশিয়ার রহিম', role: 'cashier', isFirstLogin: true }
+        ];
+        localStorage.setItem('fertilizer_users_db', JSON.stringify(usersDatabase));
+
+        window.onload = function() {
+            checkLoginState();
+        };
+
+        function getCurrentLoggedInUser() {
+            return JSON.parse(sessionStorage.getItem('fertilizer_current_user')) || { username: 'admin', name: 'আবু নোমান', role: 'admin' };
+        }
+
+        function checkLoginState() {
+            if (sessionStorage.getItem('fertilizer_logged_in') === 'true') {
+                document.getElementById('loginScreen').classList.add('hidden');
+                document.getElementById('appContainer').classList.remove('hidden');
+                initApp();
+            } else {
+                document.getElementById('loginScreen').classList.remove('hidden');
+                document.getElementById('appContainer').classList.add('hidden');
+            }
+        }
+
+        function handleLogin(e) {
+            e.preventDefault();
+            const userIn = document.getElementById('loginUsername').value.trim();
+            const passIn = document.getElementById('loginPassword').value.trim();
+            const err = document.getElementById('loginErrorMsg');
+            const user = usersDatabase.find(u => u.username.toLowerCase() === userIn.toLowerCase());
+            
+            if (!user) { err.innerText = "ইউজার আইডি পাওয়া যায়নি!"; err.classList.remove('hidden'); return; }
+            
+            if (user.isFirstLogin || !user.passwordHash) {
+                sessionStorage.setItem('fertilizer_pending_user', user.username);
+                document.getElementById('setupUsernameDisplay').innerText = user.username;
+                document.getElementById('setPasswordModal').classList.remove('hidden');
+                return;
+            }
+
+            if (user.passwordHash === hashPassword(passIn)) {
+                sessionStorage.setItem('fertilizer_logged_in', 'true');
+                sessionStorage.setItem('fertilizer_current_user', JSON.stringify(user));
+                window.location.reload();
+            } else {
+                err.innerText = "পাসওয়ার্ড সঠিক নয়!"; err.classList.remove('hidden');
+            }
+        }
+
+        function handleFirstTimePasswordSetup(e) {
+            e.preventDefault();
+            const pass1 = document.getElementById('setupNewPassword').value.trim();
+            const pass2 = document.getElementById('setupConfirmPassword').value.trim();
+            const err = document.getElementById('setupErrorMsg');
+            
+            if (pass1 !== pass2) {
+                err.innerText = "পাসওয়ার্ড দুটি মিলছে না!";
+                err.classList.remove('hidden');
+                return;
+            }
+            
+            const targetUser = sessionStorage.getItem('fertilizer_pending_user');
+            const uObj = usersDatabase.find(u => u.username.toLowerCase() === targetUser.toLowerCase());
+            if (uObj) {
+                uObj.passwordHash = hashPassword(pass1);
+                uObj.isFirstLogin = false;
+                localStorage.setItem('fertilizer_users_db', JSON.stringify(usersDatabase));
+                sessionStorage.setItem('fertilizer_logged_in', 'true');
+                sessionStorage.setItem('fertilizer_current_user', JSON.stringify(uObj));
+                sessionStorage.removeItem('fertilizer_pending_user');
+                window.location.reload();
+            }
+        }
+
+        function handleLogout() {
+            if (confirm('লগআউট করতে চান?')) { sessionStorage.clear(); window.location.reload(); }
+        }
+
+        function applyRoleBasedPermissions() {
+            const user = getCurrentLoggedInUser();
+            
+            // Show user badge
+            const badge = document.getElementById('loggedInUserBadge');
+            if (badge) {
+                badge.classList.remove('hidden');
+                document.getElementById('loggedInUserName').innerText = `${user.name} (${user.role === 'admin' ? 'এডমিন' : (user.role === 'manager' ? 'ম্যানেজার' : 'ক্যাশিয়ার')})`;
+            }
+
+            // Hide Sensitive Menu items for Staff/Cashier
+            const adminManagerOnlyElements = document.querySelectorAll('.admin-manager-only');
+            if (user.role === 'cashier') {
+                adminManagerOnlyElements.forEach(el => el.classList.add('hidden'));
+            } else {
+                adminManagerOnlyElements.forEach(el => el.classList.remove('hidden'));
+            }
+        }
+
+        function initApp() {
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('memoDate').value = today;
+            document.getElementById('importDate').value = today;
+            document.getElementById('reportDate').value = today;
+
+            applyRoleBasedPermissions();
+            handleCustomerTypeChange();
+            renderRateConfigForm();
+            renderUsersListTable();
+            updateLiveStockDisplay();
+            updateSalesDashboard();
+            updateDueKhataList();
+            
+            if (items.length === 0) addItem();
+        }
+
+        // DYNAMIC ID GENERATION FOR KRISHOK (FM), SUB-DEALER (SD), BUYER (CUS)
+        function generateDynamicIDs() {
+            const cType = document.querySelector('input[name="customerType"]:checked').value;
+            let prefix = cType === 'retailer' ? 'SD' : (cType === 'buyer' ? 'CUS' : 'FM');
+            
+            if (!document.getElementById('custID').dataset.locked) {
+                let maxNum = 0;
+                customerDatabase.forEach(c => {
+                    if (c.custID && c.custID.startsWith(prefix + '-')) {
+                        let num = parseInt(c.custID.split('-')[1]);
+                        if (!isNaN(num) && num > maxNum) maxNum = num;
+                    }
+                });
+                document.getElementById('custID').value = `${prefix}-${(maxNum + 1).toString().padStart(4, '0')}`;
+            }
+            
+            if (!document.getElementById('memoNo').dataset.locked) {
+                let maxMemo = 0;
+                memoDatabase.forEach(m => {
+                    if (m.memoNo && m.memoNo.startsWith('INV-')) {
+                        let num = parseInt(m.memoNo.split('-')[1]);
+                        if (!isNaN(num) && num > maxMemo) maxMemo = num;
+                    }
+                });
+                document.getElementById('memoNo').value = `INV-${(maxMemo + 1).toString().padStart(4, '0')}`;
+            }
+        }
+
+        function handleCustomerTypeChange() {
+            delete document.getElementById('custID').dataset.locked;
+            generateDynamicIDs();
+            recalculateAllItemPrices();
+            
+            const cType = document.querySelector('input[name="customerType"]:checked').value;
+            const retailerDiv = document.getElementById('retailerStoreContainer');
+            const farmerDiv = document.getElementById('farmerFieldsContainer');
+            const reqAddr = document.getElementById('reqAddress');
+            const reqNid = document.getElementById('reqNid');
+
+            if (cType === 'farmer') {
+                farmerDiv.classList.remove('hidden');
+                retailerDiv.classList.add('hidden');
+                if (reqAddr) reqAddr.classList.remove('hidden');
+                if (reqNid) reqNid.classList.remove('hidden');
+                document.getElementById('activeRateBadge').innerText = "খুচরা দর (কৃষক)";
+            } else if (cType === 'retailer') {
+                retailerDiv.classList.remove('hidden');
+                farmerDiv.classList.add('hidden');
+                if (reqAddr) reqAddr.classList.remove('hidden');
+                if (reqNid) reqNid.classList.add('hidden');
+                document.getElementById('activeRateBadge').innerText = "পাইকারি দর (সাব-ডিলার)";
+            } else {
+                retailerDiv.classList.add('hidden');
+                farmerDiv.classList.add('hidden');
+                if (reqAddr) reqAddr.classList.add('hidden');
+                if (reqNid) reqNid.classList.add('hidden');
+                document.getElementById('activeRateBadge').innerText = "খুচরা দর (সাধারণ ক্রেতা)";
+            }
+            updateMemo();
+        }
+
+        function recalculateAllItemPrices() {
+            const rateType = document.querySelector('input[name="customerType"]:checked').value === 'retailer' ? 'subdealer' : 'retail';
+            items.forEach(item => {
+                if (FERTILIZER_RATES[rateType] && FERTILIZER_RATES[rateType][item.name]) {
+                    const po = FERTILIZER_RATES[rateType][item.name];
+                    item.price = item.unit === 'বস্তা (৫০ কেজি)' ? po.bag : po.loose;
+                }
+            });
+            renderInputs();
+        }
+
+        function renderInputs() {
+            const container = document.getElementById('itemInputs');
+            container.innerHTML = '';
+            items.forEach((item, idx) => {
+                container.innerHTML += `
+                    <div class="bg-slate-50 p-3 rounded-lg border-2 border-slate-300 grid grid-cols-12 gap-2 items-center text-xs font-bold">
+                        <div class="col-span-12 sm:col-span-4">
+                            <label class="block text-[10px] font-black text-slate-700 mb-0.5">সারের নাম</label>
+                            <select onchange="updateItem(${idx}, 'name', this.value)" class="w-full p-1.5 border-2 border-slate-300 rounded font-black bg-white text-slate-900 focus:ring-2 focus:ring-agri-600">
+                                <option value="ইউরিয়া সার (Urea)" ${item.name === 'ইউরিয়া সার (Urea)' ? 'selected' : ''}>ইউরিয়া সার (Urea)</option>
+                                <option value="টিএসপি সার (TSP)" ${item.name === 'টিএসপি সার (TSP)' ? 'selected' : ''}>টিএসপি সার (TSP)</option>
+                                <option value="ডিএপি সার (DAP)" ${item.name === 'ডিএপি সার (DAP)' ? 'selected' : ''}>ডিএপি সার (DAP)</option>
+                                <option value="এমওপি - পটাশ (MOP)" ${item.name === 'এমওপি - পটাশ (MOP)' ? 'selected' : ''}>এমওপি - পটাশ (MOP)</option>
+                            </select>
+                        </div>
+                        <div class="col-span-6 sm:col-span-3">
+                            <label class="block text-[10px] font-black text-slate-700 mb-0.5">একক</label>
+                            <select onchange="updateItem(${idx}, 'unit', this.value)" class="w-full p-1.5 border-2 border-slate-300 rounded font-black bg-white text-slate-900 focus:ring-2 focus:ring-agri-600">
+                                <option value="বস্তা (৫০ কেজি)" ${item.unit === 'বস্তা (৫০ কেজি)' ? 'selected' : ''}>বস্তা (৫০ কেজি)</option>
+                                <option value="কেজি (Loose)" ${item.unit === 'কেজি (Loose)' ? 'selected' : ''}>কেজি (Loose)</option>
+                            </select>
+                        </div>
+                        <div class="col-span-3 sm:col-span-2">
+                            <label class="block text-[10px] font-black text-slate-700 mb-0.5">পরিমাণ</label>
+                            <input type="number" min="1" value="${item.qty}" oninput="updateItem(${idx}, 'qty', parseFloat(this.value) || 0)" class="w-full p-1.5 border-2 border-slate-300 rounded font-black bg-white text-slate-900 focus:ring-2 focus:ring-agri-600">
+                        </div>
+                        <div class="col-span-3 sm:col-span-2">
+                            <label class="block text-[10px] font-black text-slate-700 mb-0.5">দর (৳)</label>
+                            <input type="number" min="0" value="${item.price}" oninput="updateItem(${idx}, 'price', parseFloat(this.value) || 0)" class="w-full p-1.5 border-2 border-slate-300 rounded font-black bg-white text-slate-900 focus:ring-2 focus:ring-agri-600">
+                        </div>
+                        <div class="col-span-12 sm:col-span-1 flex justify-end items-center pt-1 sm:pt-4">
+                            <button onclick="removeItem(${idx})" title="মুছে ফেলুন" class="text-red-600 hover:text-red-800 p-1.5 rounded"><i class="fa-solid fa-trash-can"></i></button>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        function addItem() {
+            const rt = document.querySelector('input[name="customerType"]:checked').value === 'retailer' ? 'subdealer' : 'retail';
+            items.push({ name: 'ইউরিয়া সার (Urea)', unit: 'বস্তা (৫০ কেজি)', qty: 1, price: FERTILIZER_RATES[rt]['ইউরিয়া সার (Urea)'].bag });
+            renderInputs(); updateMemo();
+        }
+
+        function addPreset(name, unit) {
+            const rt = document.querySelector('input[name="customerType"]:checked').value === 'retailer' ? 'subdealer' : 'retail';
+            const price = unit === 'বস্তা (৫০ কেজি)' ? FERTILIZER_RATES[rt][name].bag : FERTILIZER_RATES[rt][name].loose;
+            items.push({ name, unit, qty: 1, price });
+            renderInputs(); updateMemo();
+        }
+
+        function removeItem(idx) { items.splice(idx, 1); renderInputs(); updateMemo(); }
+
+        function updateItem(idx, field, val) { 
+            items[idx][field] = val; 
+            if (field === 'name' || field === 'unit') {
+                const rt = document.querySelector('input[name="customerType"]:checked').value === 'retailer' ? 'subdealer' : 'retail';
+                if (FERTILIZER_RATES[rt] && FERTILIZER_RATES[rt][items[idx].name]) {
+                    const po = FERTILIZER_RATES[rt][items[idx].name];
+                    items[idx].price = items[idx].unit === 'বস্তা (৫০ কেজি)' ? po.bag : po.loose;
+                }
+                renderInputs();
+            }
+            updateMemo(); 
+        }
+
+        function calculatePreviousDue(cID, phone) {
+            let totalBill = 0, totalPaid = 0;
+            memoDatabase.filter(m => (m.custID === cID || (phone && m.custPhone === phone))).forEach(m => {
+                totalBill += (m.currentNetBill || 0); totalPaid += (m.paid || 0);
+            });
+            receiptDatabase.filter(r => (r.custID === cID || (phone && r.custPhone === phone))).forEach(r => {
+                totalPaid += (r.paid || 0);
+            });
+            return Math.max(0, totalBill - totalPaid);
+        }
+
+        function updateMemo() {
+            const custID = document.getElementById('custID').value;
+            const memoNo = document.getElementById('memoNo').value;
+            const rawDate = document.getElementById('memoDate').value;
+            const dispDate = formatDisplayDate(rawDate) + ' (' + getCurrentTime() + ')';
+            
+            const custName = document.getElementById('custName').value || '--';
+            const custPhone = document.getElementById('custPhone').value || '--';
+            const custBlock = document.getElementById('custBlock').value || '--';
+            const custStoreName = document.getElementById('custStoreName').value || '--';
+            const cType = document.querySelector('input[name="customerType"]:checked').value;
+            const currentUser = getCurrentLoggedInUser();
+
+            document.querySelectorAll('.pCustID').forEach(el => el.innerText = custID);
+            document.querySelectorAll('.pMemoNo').forEach(el => el.innerText = memoNo);
+            document.querySelectorAll('.pMemoDate').forEach(el => el.innerText = dispDate);
+            document.querySelectorAll('.pCustName').forEach(el => el.innerText = custName);
+            document.querySelectorAll('.pCustPhone').forEach(el => el.innerText = custPhone);
+            document.querySelectorAll('.pCustBlock').forEach(el => el.innerText = custBlock);
+            document.querySelectorAll('.pCustStoreName').forEach(el => el.innerText = custStoreName);
+            document.querySelectorAll('.pCustType').forEach(el => el.innerText = cType === 'farmer' ? 'কৃষক' : (cType === 'retailer' ? 'সাব-ডিলার' : 'সাধারণ ক্রেতা'));
+            
+            // SHOW PREPARED BY CASHIER / ADMIN NAME
+            document.querySelectorAll('.pPreparedBy').forEach(el => el.innerText = currentUser.name);
+
+            if (cType === 'retailer') {
+                document.querySelectorAll('.pStoreNameRow').forEach(el => el.classList.remove('hidden'));
+            } else {
+                document.querySelectorAll('.pStoreNameRow').forEach(el => el.classList.add('hidden'));
+            }
+
+            let sub = 0;
+            const tbodyHtml = items.map((it, i) => {
+                const rt = it.qty * it.price; sub += rt;
+                return `<tr><td class="p-1 border border-black text-center">${toBnNum(i+1)}</td><td class="p-1 border border-black">${it.name}</td><td class="p-1 border border-black text-center">${it.unit}</td><td class="p-1 border border-black text-center">${toBnNum(it.qty)}</td><td class="p-1 border border-black text-right">৳${toBnNum(it.price)}</td><td class="p-1 border border-black text-right">৳${toBnNum(rt)}</td></tr>`;
+            }).join('');
+            
+            document.querySelectorAll('.pTableBody').forEach(el => el.innerHTML = tbodyHtml);
+            
+            const disc = parseFloat(document.getElementById('discount').value) || 0;
+            const tr = parseFloat(document.getElementById('transport').value) || 0;
+            const paid = parseFloat(document.getElementById('paid').value) || 0;
+            const net = Math.max(0, sub - disc + tr);
+            
+            const existingMemo = memoDatabase.find(m => m.memoNo === memoNo);
+            let prevDue = calculatePreviousDue(custID, custPhone);
+            if (existingMemo) {
+                prevDue -= (existingMemo.currentNetBill - existingMemo.paid);
+            }
+            
+            const grand = net + prevDue;
+            const due = grand - paid;
+
+            document.querySelectorAll('.pSubTotal').forEach(el => el.innerText = toBnNum(sub));
+            document.querySelectorAll('.pDiscount').forEach(el => el.innerText = toBnNum(disc));
+            document.querySelectorAll('.pTransport').forEach(el => el.innerText = toBnNum(tr));
+            document.querySelectorAll('.pCurrentNetBill').forEach(el => el.innerText = toBnNum(net));
+            document.querySelectorAll('.pPreviousDue').forEach(el => el.innerText = toBnNum(prevDue));
+            document.querySelectorAll('.pGrandTotal').forEach(el => el.innerText = toBnNum(grand));
+            document.querySelectorAll('.pPaid').forEach(el => el.innerText = toBnNum(paid));
+            document.querySelectorAll('.pDue').forEach(el => el.innerText = toBnNum(due));
+
+            document.getElementById('shopCopyMemo').innerHTML = document.querySelector('.memo-page').innerHTML;
+            const badge = document.getElementById('shopCopyMemo').querySelector('.bg-black');
+            if (badge) {
+                badge.className = "bg-slate-900 text-white font-black text-xs px-3 py-1 uppercase tracking-wider rounded-sm";
+                badge.innerText = "ক্যাশ মেমো (দোকান কপি)";
+            }
+        }
+
+        function autoCheckReturningCustomer(phone) {
+            if(!phone || phone.length < 5) return;
+            const existing = customerDatabase.find(c => c.custPhone === phone);
+            if (existing) loadCustomerDataIntoForm(existing);
+        }
+
+        function loadCustomerDataIntoForm(c) {
+            if (c.customerType) {
+                const rd = document.querySelector(`input[name="customerType"][value="${c.customerType}"]`);
+                if(rd) { 
+                    rd.checked = true;
+                    handleCustomerTypeChange();
+                }
+            }
+            document.getElementById('custID').value = c.custID || '';
+            document.getElementById('custID').dataset.locked = "true";
+            document.getElementById('custName').value = c.custName || '';
+            document.getElementById('custPhone').value = c.custPhone || '';
+            document.getElementById('custBlock').value = c.custBlock || '';
+            document.getElementById('custStoreName').value = c.custStoreName || '';
+            document.getElementById('custNid').value = c.custNid || '';
+            document.getElementById('custFarmerCard').value = c.custFarmerCard || '';
+            updateMemo();
+        }
+
+        function saveOrUpdateCustomerProfile() {
+            const cust = {
+                custID: document.getElementById('custID').value,
+                customerType: document.querySelector('input[name="customerType"]:checked').value,
+                custName: document.getElementById('custName').value.trim(),
+                custPhone: document.getElementById('custPhone').value.trim(),
+                custBlock: document.getElementById('custBlock').value.trim(),
+                custStoreName: document.getElementById('custStoreName').value.trim(),
+                custNid: document.getElementById('custNid').value.trim(),
+                custFarmerCard: document.getElementById('custFarmerCard').value.trim()
+            };
+            const idx = customerDatabase.findIndex(c => c.custPhone === cust.custPhone || c.custID === cust.custID);
+            if (idx > -1) customerDatabase[idx] = cust; else customerDatabase.push(cust);
+            localStorage.setItem('fertilizer_customers_db', JSON.stringify(customerDatabase));
+        }
+
+        function saveAndPrintMemo() {
+            const cType = document.querySelector('input[name="customerType"]:checked').value;
+            const custName = document.getElementById('custName').value.trim();
+            const custPhone = document.getElementById('custPhone').value.trim();
+            const custBlock = document.getElementById('custBlock').value.trim();
+            const custStoreName = document.getElementById('custStoreName').value.trim();
+            const custNid = document.getElementById('custNid').value.trim();
+            const currentUser = getCurrentLoggedInUser();
+
+            if (!custName || !custPhone) {
+                alert("দয়া করে গ্রাহকের নাম ও মোবাইল নম্বর লিখুন!");
+                return;
+            }
+
+            if (cType === 'farmer') {
+                if (!custBlock || !custNid) {
+                    alert("কৃষকের জন্য নাম, মোবাইল নম্বর, ঠিকানা এবং এনআইডি (NID) নম্বর আবশ্যক!");
+                    return;
+                }
+            } else if (cType === 'retailer') {
+                if (!custStoreName || !custBlock) {
+                    alert("সাব-ডিলারের জন্য নাম, দোকানের নাম, ঠিকানা এবং মোবাইল নম্বর আবশ্যক!");
+                    return;
+                }
+            }
+
+            if (items.length === 0) {
+                alert("কমপক্ষে ১টি সার বিক্রি তালিকাভুক্ত করুন!");
+                return;
+            }
+
+            const memoData = {
+                memoNo: document.getElementById('memoNo').value,
+                custID: document.getElementById('custID').value,
+                custName, custPhone, custBlock, custStoreName, custNid,
+                date: document.getElementById('memoDate').value,
+                items: JSON.parse(JSON.stringify(items)),
+                discount: parseFloat(document.getElementById('discount').value) || 0,
+                transport: parseFloat(document.getElementById('transport').value) || 0,
+                paid: parseFloat(document.getElementById('paid').value) || 0,
+                currentNetBill: 0,
+                preparedBy: currentUser.name
+            };
+            
+            let sub = 0;
+            memoData.items.forEach(i => { sub += (i.qty * i.price); });
+            memoData.currentNetBill = Math.max(0, sub - memoData.discount + memoData.transport);
+            
+            const existingIdx = memoDatabase.findIndex(m => m.memoNo === memoData.memoNo);
+            if (existingIdx !== -1) {
+                memoDatabase[existingIdx] = memoData;
+            } else {
+                memoDatabase.push(memoData);
+                document.getElementById('memoNo').dataset.locked = "true";
+            }
+            localStorage.setItem('fertilizer_memos_db', JSON.stringify(memoDatabase));
+            
+            saveOrUpdateCustomerProfile();
+            updateSalesDashboard();
+            updateDueKhataList();
+            updateLiveStockDisplay();
+            
+            document.body.className = "bg-slate-200 text-slate-900 min-h-screen print-memo-mode font-bold";
+            window.print();
+        }
+
+        function sendWhatsAppCurrentForm() {
+            const custPhone = document.getElementById('custPhone').value.trim();
+            if(!custPhone) { alert("দয়া করে মোবাইল নম্বর লিখুন!"); return; }
+            
+            const memoNo = document.getElementById('memoNo').value;
+            const memoDate = document.getElementById('memoDate').value;
+            const custName = document.getElementById('custName').value || 'গ্রাহক';
+            const custID = document.getElementById('custID').value;
+            const currentUser = getCurrentLoggedInUser();
+
+            let text = `*মেসার্স আবু নোমান*\n`;
+            text += `ক্যাশ মেমো: ${memoNo}\n`;
+            text += `তারিখ: ${memoDate}\n`;
+            text += `গ্রাহক: ${custName}\n`;
+            text += `প্রস্তুতকারক: ${currentUser.name}\n\n`;
+            text += `*সারের বিবরণ:*\n`;
+            
+            let sub = 0;
+            items.forEach(it => {
+                const rt = it.qty * it.price; sub += rt;
+                text += `- ${it.name} | ${it.qty} ${it.unit} x ৳${it.price} = ৳${rt}\n`;
+            });
+            
+            const disc = parseFloat(document.getElementById('discount').value) || 0;
+            const tr = parseFloat(document.getElementById('transport').value) || 0;
+            const net = Math.max(0, sub - disc + tr);
+            const paid = parseFloat(document.getElementById('paid').value) || 0;
+            
+            const existingMemo = memoDatabase.find(m => m.memoNo === memoNo);
+            let prev = calculatePreviousDue(custID, custPhone);
+            if (existingMemo) {
+                prev -= (existingMemo.currentNetBill - existingMemo.paid);
+            }
+
+            const grand = net + prev;
+            const due = grand - paid;
+
+            text += `\nমোট: ৳ ${sub}\n`;
+            text += `ছাড় (-): ৳ ${disc}\n`;
+            text += `পরিবহন (+): ৳ ${tr}\n`;
+            text += `মোট বিল: ৳ ${net}\n`;
+            text += `পূর্বের বকেয়া (+): ৳ ${prev}\n`;
+            text += `সর্বমোট প্রদেয়: ৳ ${grand}\n`;
+            text += `জমা (-): ৳ ${paid}\n`;
+            text += `*অবশিষ্ট বকেয়া: ৳ ${due}*`;
+            
+            let cleanPhone = custPhone.replace(/[^0-9]/g, '');
+            if (cleanPhone.startsWith('0')) cleanPhone = '88' + cleanPhone;
+            else if (!cleanPhone.startsWith('88')) cleanPhone = '88' + cleanPhone;
+
+            let waUrl = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(text)}`;
+            window.open(waUrl, '_blank');
+        }
+
+        function resetFormForNewCustomer() {
+            delete document.getElementById('custID').dataset.locked;
+            delete document.getElementById('memoNo').dataset.locked;
+            document.getElementById('custName').value = '';
+            document.getElementById('custPhone').value = '';
+            document.getElementById('custBlock').value = '';
+            document.getElementById('custStoreName').value = '';
+            document.getElementById('custNid').value = '';
+            document.getElementById('custFarmerCard').value = '';
+            document.getElementById('discount').value = 0;
+            document.getElementById('transport').value = 0;
+            document.getElementById('paid').value = 0;
+            items = [];
+            addItem();
+            generateDynamicIDs();
+            updateMemo();
+        }
+
+        // STOCK & IMPORT LOGIC
+        function addStockImport() {
+            const date = document.getElementById('importDate').value;
+            const name = document.getElementById('importName').value;
+            const qty = parseFloat(document.getElementById('importQty').value);
+            if(!date || !qty || qty <= 0) return alert("সঠিক তথ্য দিন!");
+
+            stockImports.push({ id: Date.now(), date, name, qty });
+            localStorage.setItem('fertilizer_stock_db', JSON.stringify(stockImports));
+            document.getElementById('importQty').value = '';
+            updateLiveStockDisplay();
+            alert("আমদানি সফলভাবে যুক্ত হয়েছে!");
+        }
+
+        function updateLiveStockDisplay() {
+            const filterDate = document.getElementById('stockFilterDate').value;
+            const tBody = document.getElementById('importHistoryTableBody');
+            tBody.innerHTML = '';
+            
+            let filteredImports = filterDate ? stockImports.filter(s => s.date === filterDate) : stockImports;
+            
+            filteredImports.forEach((imp, i) => {
+                tBody.innerHTML += `<tr class="border-b border-amber-300 font-bold text-xs">
+                    <td class="p-2 text-center">${toBnNum(i+1)}</td>
+                    <td class="p-2 text-center">${formatDisplayDate(imp.date)}</td>
+                    <td class="p-2">${imp.name}</td>
+                    <td class="p-2 text-center">${toBnNum(imp.qty)}</td>
+                    <td class="p-2 text-center"><button onclick="deleteImport(${imp.id})" class="text-red-600"><i class="fa-solid fa-trash"></i></button></td>
+                </tr>`;
+            });
+
+            const stockMap = {
+                'ইউরিয়া সার (Urea)': { in: 0, out: 0 },
+                'টিএসপি সার (TSP)': { in: 0, out: 0 },
+                'ডিএপি সার (DAP)': { in: 0, out: 0 },
+                'এমওপি - পটাশ (MOP)': { in: 0, out: 0 }
+            };
+
+            stockImports.forEach(s => { if(stockMap[s.name]) stockMap[s.name].in += s.qty; });
+            memoDatabase.forEach(m => {
+                m.items.forEach(it => {
+                    if(stockMap[it.name] && it.unit === 'বস্তা (৫০ কেজি)') stockMap[it.name].out += it.qty;
+                    if(stockMap[it.name] && it.unit === 'কেজি (Loose)') stockMap[it.name].out += (it.qty / 50);
+                });
+            });
+
+            const cardsDiv = document.getElementById('stockSummaryCards');
+            cardsDiv.innerHTML = '';
+            const pStockTbody = document.getElementById('pStockTableBody');
+            pStockTbody.innerHTML = '';
+
+            let idx = 1;
+            for(let fert in stockMap) {
+                const bal = stockMap[fert].in - stockMap[fert].out;
+                cardsDiv.innerHTML += `
+                    <div class="bg-white p-3 rounded-lg border-2 border-slate-300 text-center shadow-sm">
+                        <h4 class="text-[10px] font-black text-slate-600 mb-1">${fert}</h4>
+                        <p class="text-lg font-black text-slate-900">${toBnNum(bal.toFixed(1))} <span class="text-xs">বস্তা</span></p>
+                    </div>`;
+                
+                pStockTbody.innerHTML += `<tr class="border-b border-black text-xs font-bold text-black">
+                    <td class="p-1 border border-black text-center">${toBnNum(idx++)}</td>
+                    <td class="p-1 border border-black">${fert}</td>
+                    <td class="p-1 border border-black text-center">${toBnNum(stockMap[fert].in)}</td>
+                    <td class="p-1 border border-black text-center">${toBnNum(stockMap[fert].out.toFixed(1))}</td>
+                    <td class="p-1 border border-black text-center font-black">${toBnNum(bal.toFixed(1))}</td>
+                </tr>`;
+            }
+
+            document.getElementById('pStockGenDate').innerText = formatDisplayDate(new Date().toISOString().split('T')[0]) + ' ' + getCurrentTime();
+            
+            let totalBags = 0;
+            const pImportTbody = document.getElementById('pImportTableBody');
+            pImportTbody.innerHTML = '';
+            filteredImports.forEach((imp, i) => {
+                totalBags += imp.qty;
+                pImportTbody.innerHTML += `<tr class="border-b border-black text-xs font-bold text-black">
+                    <td class="p-1 border border-black text-center">${toBnNum(i+1)}</td>
+                    <td class="p-1 border border-black text-center">${formatDisplayDate(imp.date)}</td>
+                    <td class="p-1 border border-black">${imp.name}</td>
+                    <td class="p-1 border border-black text-center">${toBnNum(imp.qty)}</td>
+                </tr>`;
+            });
+            document.getElementById('pImportTotalBags').innerText = toBnNum(totalBags) + ' বস্তা';
+            document.getElementById('pImportGenDate').innerText = formatDisplayDate(new Date().toISOString().split('T')[0]);
+        }
+
+        function deleteImport(id) {
+            stockImports = stockImports.filter(s => s.id !== id);
+            localStorage.setItem('fertilizer_stock_db', JSON.stringify(stockImports));
+            updateLiveStockDisplay();
+        }
+        function clearStockDateFilter() { document.getElementById('stockFilterDate').value = ''; updateLiveStockDisplay(); }
+
+        // PRINT FUNCTIONS
+        function printStockStatement() {
+            document.body.className = "bg-slate-200 text-slate-900 min-h-screen print-stock-mode font-bold";
+            window.print();
+        }
+        function printImportStatement() {
+            document.body.className = "bg-slate-200 text-slate-900 min-h-screen print-import-mode font-bold";
+            window.print();
+        }
+        function downloadStockPDF() {
+            document.getElementById('printableStockContainer').classList.remove('hidden');
+            html2pdf().from(document.getElementById('printableStockContainer')).save('Live_Stock.pdf').then(()=>{
+                document.getElementById('printableStockContainer').classList.add('hidden');
+            });
+        }
+        function downloadImportPDF() {
+            document.getElementById('printableImportContainer').classList.remove('hidden');
+            html2pdf().from(document.getElementById('printableImportContainer')).save('Import_Statement.pdf').then(()=>{
+                document.getElementById('printableImportContainer').classList.add('hidden');
+            });
+        }
+
+        // DUE KHATA & PAYMENT
+        function updateDueKhataList() {
+            const list = document.getElementById('allDueList');
+            list.innerHTML = '';
+            let totalSystemDue = 0;
+
+            customerDatabase.forEach(c => {
+                const due = calculatePreviousDue(c.custID, c.custPhone);
+                if (due > 0) {
+                    totalSystemDue += due;
+                    list.innerHTML += `
+                        <div class="bg-red-50 p-3 rounded-lg border border-red-200 flex justify-between items-center text-xs">
+                            <div>
+                                <p class="font-black text-slate-900">${c.custName} <span class="text-slate-500 font-bold">(${c.custPhone})</span> [${c.custID}]</p>
+                                <p class="text-red-700 font-black mt-0.5">বকেয়া: ৳ ${toBnNum(due)}</p>
+                            </div>
+                            <div class="flex gap-2">
+                                <button onclick="printCustomerStatement('${c.custID}', '${c.custPhone}')" class="bg-blue-600 hover:bg-blue-700 text-white px-2.5 py-1.5 rounded font-black shadow-sm">স্টেটমেন্ট</button>
+                                <button onclick="payDueAmount('${c.custID}', '${c.custPhone}', '${c.custName}', ${due})" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1.5 rounded font-black shadow-sm">জমা নিন</button>
+                            </div>
+                        </div>
+                    `;
+                }
+            });
+            document.getElementById('totalOverallDue').innerText = toBnNum(totalSystemDue);
+        }
+
+        function payDueAmount(custID, phone, name, currentDue) {
+            const currentUser = getCurrentLoggedInUser();
+            const amount = prompt(`${name} এর বকেয়া ৳${currentDue}।\nজমাকৃত টাকার পরিমাণ লিখুন:`);
+            if(amount && parseFloat(amount) > 0) {
+                const paidAmt = parseFloat(amount);
+                const rcpNo = 'RCP-' + Date.now().toString().slice(-6);
+                const rcp = {
+                    receiptNo: rcpNo, custID, custPhone: phone, custName: name, 
+                    date: new Date().toISOString().split('T')[0], paid: paidAmt,
+                    preparedBy: currentUser.name
+                };
+                
+                receiptDatabase.push(rcp);
+                localStorage.setItem('fertilizer_receipts_db', JSON.stringify(receiptDatabase));
+                updateDueKhataList();
+                
+                reprintReceipt(rcpNo); 
+            }
+        }
+
+        function reprintReceipt(rcpNo) {
+            const rcp = receiptDatabase.find(r => r.receiptNo === rcpNo);
+            if(!rcp) return;
+            
+            const prevDue = calculatePreviousDue(rcp.custID, rcp.custPhone) + rcp.paid;
+            const remDue = prevDue - rcp.paid;
+
+            document.getElementById('rcpNo1').innerText = rcpNo;
+            document.getElementById('rcpDate1').innerText = formatDisplayDate(rcp.date);
+            document.getElementById('rcpPreparedBy1').innerText = rcp.preparedBy || '--';
+            document.getElementById('rcpCustomerInfo1').innerHTML = `আইডি: ${rcp.custID}<br>নাম: ${rcp.custName}<br>মোবাইল: ${rcp.custPhone}`;
+            document.getElementById('rcpPrevDue1').innerText = toBnNum(prevDue);
+            document.getElementById('rcpPaid1').innerText = toBnNum(rcp.paid);
+            document.getElementById('rcpRemaining1').innerText = toBnNum(remDue);
+
+            document.body.className = "bg-slate-200 text-slate-900 min-h-screen print-receipt-mode font-bold";
+            window.print();
+        }
+
+        function printCustomerStatement(cID, phone) {
+            const currentUser = getCurrentLoggedInUser();
+            const cust = customerDatabase.find(c => c.custID === cID || c.custPhone === phone) || {
+                custID: cID, custName: 'গ্রাহক', custPhone: phone || '--', custBlock: '--', customerType: 'farmer'
+            };
+
+            document.getElementById('stmtPrintedBy').innerText = currentUser.name;
+
+            const detailsDiv = document.getElementById('stmtCustomerDetails');
+            detailsDiv.innerHTML = `
+                <div><strong>গ্রাহকের নাম:</strong> ${cust.custName}</div>
+                <div class="text-right"><strong>মোবাইল:</strong> ${cust.custPhone}</div>
+                <div><strong>কাস্টমার আইডি:</strong> ${cust.custID}</div>
+                <div class="text-right"><strong>ঠিকানা:</strong> ${cust.custBlock || '--'}</div>
+            `;
+
+            let history = [];
+            memoDatabase.filter(m => m.custID === cID || (phone && m.custPhone === phone)).forEach(m => {
+                history.push({
+                    date: m.date,
+                    ref: m.memoNo,
+                    desc: `ক্যাশ মেমো (${m.items.map(i=>i.name).join(', ')})`,
+                    bill: m.currentNetBill,
+                    paid: m.paid,
+                    preparedBy: m.preparedBy || '--'
+                });
+            });
+
+            receiptDatabase.filter(r => r.custID === cID || (phone && r.custPhone === phone)).forEach(r => {
+                history.push({
+                    date: r.date,
+                    ref: r.receiptNo,
+                    desc: `বকেয়া জমা রশিদ`,
+                    bill: 0,
+                    paid: r.paid,
+                    preparedBy: r.preparedBy || '--'
+                });
+            });
+
+            history.sort((a,b) => new Date(a.date) - new Date(b.date));
+
+            let runningBal = 0;
+            const tBody = document.getElementById('stmtTableBody');
+            tBody.innerHTML = '';
+
+            history.forEach((h, i) => {
+                runningBal += (h.bill - h.paid);
+                tBody.innerHTML += `
+                    <tr class="border-b border-black text-xs font-bold text-black">
+                        <td class="p-1 border border-black text-center">${toBnNum(i+1)}</td>
+                        <td class="p-1 border border-black text-center">${formatDisplayDate(h.date)}</td>
+                        <td class="p-1 border border-black">${h.ref} - ${h.desc}</td>
+                        <td class="p-1 border border-black text-center font-bold">${h.preparedBy}</td>
+                        <td class="p-1 border border-black text-right">৳${toBnNum(h.bill)}</td>
+                        <td class="p-1 border border-black text-right">৳${toBnNum(h.paid)}</td>
+                        <td class="p-1 border border-black text-right font-black">৳${toBnNum(runningBal)}</td>
+                    </tr>
+                `;
+            });
+
+            document.body.className = "bg-slate-200 text-slate-900 min-h-screen print-statement-mode font-bold";
+            window.print();
+        }
+
+        // DASHBOARD
+        function updateSalesDashboard() {
+            const date = document.getElementById('reportDate').value;
+            const todaysMemos = memoDatabase.filter(m => m.date === date);
+            
+            let totalS = 0, totalP = 0, totalD = 0;
+            let fertMap = {};
+
+            todaysMemos.forEach(m => {
+                totalS += m.currentNetBill;
+                totalP += m.paid;
+                totalD += Math.max(0, m.currentNetBill - m.paid);
+                m.items.forEach(it => {
+                    if(!fertMap[it.name]) fertMap[it.name] = { qty: 0, total: 0 };
+                    fertMap[it.name].qty += it.qty;
+                    fertMap[it.name].total += (it.qty * it.price);
+                });
+            });
+
+            document.getElementById('dashTotalSales').innerText = toBnNum(totalS);
+            document.getElementById('dashPaidSales').innerText = toBnNum(totalP);
+            document.getElementById('dashDueSales').innerText = toBnNum(totalD);
+            document.getElementById('dashCustomerCount').innerText = toBnNum(todaysMemos.length);
+
+            const ul = document.getElementById('dashFertilizerBreakdown');
+            ul.innerHTML = '';
+            for(let name in fertMap) {
+                ul.innerHTML += `<li class="bg-white p-2 rounded border shadow-sm flex justify-between"><span>${name} (${toBnNum(fertMap[name].qty)})</span> <span>৳${toBnNum(fertMap[name].total)}</span></li>`;
+            }
+
+            const list = document.getElementById('dailyMemosList');
+            list.innerHTML = '';
+            todaysMemos.forEach(m => {
+                list.innerHTML += `<div class="bg-white p-2 rounded border flex justify-between items-center text-[10px]">
+                    <div><b>${m.memoNo}</b> | ${m.custName} <br> বিল: ৳${toBnNum(m.currentNetBill)} | প্রস্তুতকারক: ${m.preparedBy || '--'}</div>
+                    <button onclick="reprintMemo('${m.memoNo}')" class="bg-blue-600 text-white px-2 py-1 rounded">প্রিন্ট</button>
+                </div>`;
+            });
+        }
+
+        function toggleDailyMemosList() {
+            const container = document.getElementById('dailyMemosDetailContainer');
+            if (container) container.classList.toggle('hidden');
+        }
+
+        function executeQuickSearch() {
+            const q = document.getElementById('quickSearchInput').value.trim().toLowerCase();
+            const box = document.getElementById('searchResultsContainer');
+            const list = document.getElementById('searchResultsList');
+            if(q.length < 2) { box.classList.add('hidden'); return; }
+            
+            box.classList.remove('hidden');
+            list.innerHTML = '';
+            
+            const memoResults = memoDatabase.filter(m => m.memoNo.toLowerCase().includes(q) || m.custPhone.includes(q) || m.custName.toLowerCase().includes(q) || m.custID.toLowerCase().includes(q));
+            const customerResults = customerDatabase.filter(c => c.custID.toLowerCase().includes(q) || c.custPhone.includes(q) || c.custName.toLowerCase().includes(q));
+
+            if (memoResults.length === 0 && customerResults.length === 0) {
+                list.innerHTML = `<div class="p-3 text-center text-xs font-black text-slate-600">কোন তথ্য পাওয়া যায়নি!</div>`;
+                return;
+            }
+
+            if (customerResults.length > 0) {
+                list.innerHTML += `<div class="text-xs font-black text-amber-900 mb-1 border-b border-amber-300 pb-1">গ্রাহক প্রোফাইল ও স্টেটমেন্ট (${customerResults.length}):</div>`;
+                customerResults.forEach(c => {
+                    const due = calculatePreviousDue(c.custID, c.custPhone);
+                    list.innerHTML += `<div class="bg-white p-2.5 rounded-lg border-2 border-amber-300 flex justify-between items-center mb-2">
+                        <div class="text-xs">
+                            <b>${c.custName}</b> (${c.custPhone}) | ID: <b>${c.custID}</b>
+                            <br><span class="text-red-700 font-black">মোট বকেয়া: ৳${toBnNum(due)}</span>
+                        </div>
+                        <div class="flex gap-2">
+                            <button onclick="printCustomerStatement('${c.custID}', '${c.custPhone}')" class="bg-indigo-600 hover:bg-indigo-700 text-white px-2.5 py-1 rounded text-xs font-black shadow">স্টেটমেন্ট প্রিন্ট</button>
+                            <button onclick="loadCustomerDataIntoFormBySearch('${c.custPhone}')" class="bg-emerald-600 hover:bg-emerald-700 text-white px-2.5 py-1 rounded text-xs font-black shadow">মেমো ফরম তৈরি</button>
+                        </div>
+                    </div>`;
+                });
+            }
+
+            if (memoResults.length > 0) {
+                list.innerHTML += `<div class="text-xs font-black text-amber-900 mb-1 border-b border-amber-300 pb-1 mt-3">ক্যাশ মেমো তালিকা (${memoResults.length}):</div>`;
+                memoResults.forEach(m => {
+                    list.innerHTML += `<div class="bg-white p-2.5 rounded-lg border-2 border-amber-200 flex justify-between items-center mb-2">
+                        <div class="text-xs"><b>${m.memoNo}</b> | ${m.custName} (${m.custPhone}) | বিল: ৳${toBnNum(m.currentNetBill)} | প্রস্তুতকারক: ${m.preparedBy || '--'}</div>
+                        <button onclick="reprintMemo('${m.memoNo}')" class="bg-amber-600 text-white px-3 py-1 rounded text-xs font-black shadow">মেমো প্রিন্ট</button>
+                    </div>`;
+                });
+            }
+        }
+
+        function loadCustomerDataIntoFormBySearch(phone) {
+            autoCheckReturningCustomer(phone);
+            closeSearchResults();
+        }
+
+        function reprintMemo(mNo) {
+            const m = memoDatabase.find(x => x.memoNo === mNo);
+            if(!m) return;
+            
+            document.getElementById('memoNo').value = m.memoNo;
+            document.getElementById('custID').value = m.custID;
+            document.getElementById('custName').value = m.custName;
+            document.getElementById('custPhone').value = m.custPhone;
+            document.getElementById('memoDate').value = m.date;
+            document.getElementById('discount').value = m.discount;
+            document.getElementById('transport').value = m.transport;
+            document.getElementById('paid').value = m.paid;
+            
+            items = m.items;
+            document.getElementById('memoNo').dataset.locked = "true";
+            document.getElementById('custID').dataset.locked = "true";
+            
+            renderInputs();
+            updateMemo();
+            document.body.className = "bg-slate-200 text-slate-900 min-h-screen print-memo-mode font-bold";
+            window.print();
+        }
+
+        function toggleSection(id) { document.getElementById(id).classList.toggle('hidden'); }
+        function openMenuOption(id) { document.getElementById('threeDotMenu').classList.add('hidden'); toggleSection(id); }
+        function toggleThreeDotMenu() { document.getElementById('threeDotMenu').classList.toggle('hidden'); }
+        function closeSearchResults() { document.getElementById('searchResultsContainer').classList.add('hidden'); }
+
+        function openAdminSettingsModal() {
+            const adminObj = usersDatabase.find(u => u.role === 'admin') || getCurrentLoggedInUser();
+            document.getElementById('newAdminName').value = adminObj.name || '';
+            document.getElementById('newAdminUsername').value = adminObj.username || 'admin';
+            toggleSection('adminSettingsModal');
+        }
+
+        // RATE CONFIG & USER MANAGEMENT FUNCTIONS
+        function renderRateConfigForm() {
+            const container = document.getElementById('rateConfigContainer');
+            if (!container) return;
+            let html = `
+                <div class="bg-emerald-50 p-3 rounded-lg border border-emerald-300 space-y-2">
+                    <h4 class="font-black text-emerald-900 text-xs border-b border-emerald-300 pb-1">খুচরা মূল্য (কৃষক ও সাধারণ ক্রেতা)</h4>
+                    ${Object.keys(FERTILIZER_RATES.retail).map(fert => `
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 items-center text-xs bg-white p-2 rounded border border-emerald-200">
+                            <span class="font-black text-slate-900 sm:col-span-1">${fert}</span>
+                            <div class="flex items-center gap-1">
+                                <span class="text-[10px] text-slate-600">বস্তা:</span>
+                                <input type="number" id="rate_retail_bag_${fert}" value="${FERTILIZER_RATES.retail[fert].bag}" class="w-full p-1 border rounded text-xs font-black">
+                            </div>
+                            <div class="flex items-center gap-1">
+                                <span class="text-[10px] text-slate-600">কেজি:</span>
+                                <input type="number" id="rate_retail_loose_${fert}" value="${FERTILIZER_RATES.retail[fert].loose}" class="w-full p-1 border rounded text-xs font-black">
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+                <div class="bg-blue-50 p-3 rounded-lg border border-blue-300 space-y-2">
+                    <h4 class="font-black text-blue-900 text-xs border-b border-blue-300 pb-1">পাইকারি মূল্য (সাব-ডিলার)</h4>
+                    ${Object.keys(FERTILIZER_RATES.subdealer).map(fert => `
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 items-center text-xs bg-white p-2 rounded border border-blue-200">
+                            <span class="font-black text-slate-900 sm:col-span-1">${fert}</span>
+                            <div class="flex items-center gap-1">
+                                <span class="text-[10px] text-slate-600">বস্তা:</span>
+                                <input type="number" id="rate_sub_bag_${fert}" value="${FERTILIZER_RATES.subdealer[fert].bag}" class="w-full p-1 border rounded text-xs font-black">
+                            </div>
+                            <div class="flex items-center gap-1">
+                                <span class="text-[10px] text-slate-600">কেজি:</span>
+                                <input type="number" id="rate_sub_loose_${fert}" value="${FERTILIZER_RATES.subdealer[fert].loose}" class="w-full p-1 border rounded text-xs font-black">
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+            container.innerHTML = html;
+        }
+
+        function saveCustomRates() {
+            Object.keys(FERTILIZER_RATES.retail).forEach(fert => {
+                const bagVal = parseFloat(document.getElementById(`rate_retail_bag_${fert}`).value) || 0;
+                const looseVal = parseFloat(document.getElementById(`rate_retail_loose_${fert}`).value) || 0;
+                FERTILIZER_RATES.retail[fert] = { bag: bagVal, loose: looseVal };
+            });
+            Object.keys(FERTILIZER_RATES.subdealer).forEach(fert => {
+                const bagVal = parseFloat(document.getElementById(`rate_sub_bag_${fert}`).value) || 0;
+                const looseVal = parseFloat(document.getElementById(`rate_sub_loose_${fert}`).value) || 0;
+                FERTILIZER_RATES.subdealer[fert] = { bag: bagVal, loose: looseVal };
+            });
+            localStorage.setItem('fertilizer_rates_db', JSON.stringify(FERTILIZER_RATES));
+            recalculateAllItemPrices();
+            alert('সারের মূল্য তালিকা সফলভাবে সংরক্ষণ করা হয়েছে!');
+            toggleSection('rateConfigModal');
+        }
+
+        function saveAdminCredentials(e) {
+            e.preventDefault();
+            const name = document.getElementById('newAdminName').value.trim();
+            const username = document.getElementById('newAdminUsername').value.trim();
+            const pass1 = document.getElementById('newAdminPassword').value.trim();
+            const pass2 = document.getElementById('confirmAdminPassword').value.trim();
+
+            if (pass1 !== pass2) {
+                alert('পাসওয়ার্ড দুটি মিলছে না!');
+                return;
+            }
+
+            let adminUser = usersDatabase.find(u => u.role === 'admin');
+            if (!adminUser) {
+                adminUser = { username: username, passwordHash: hashPassword(pass1), name: name, role: 'admin', isFirstLogin: false };
+                usersDatabase.push(adminUser);
+            } else {
+                adminUser.name = name;
+                adminUser.username = username;
+                adminUser.passwordHash = hashPassword(pass1);
+                adminUser.isFirstLogin = false;
+            }
+
+            localStorage.setItem('fertilizer_users_db', JSON.stringify(usersDatabase));
+            sessionStorage.setItem('fertilizer_current_user', JSON.stringify(adminUser));
+            applyRoleBasedPermissions();
+            renderUsersListTable();
+            alert('এডমিন সিকিউরিটি ও আইডি তথ্য সফলভাবে আপডেট হয়েছে!');
+            toggleSection('adminSettingsModal');
+        }
+
+        function createNewUserAccount(e) {
+            e.preventDefault();
+            const uId = document.getElementById('newUserIdInput').value.trim();
+            const uName = document.getElementById('newUserNameInput').value.trim();
+            const uRole = document.getElementById('newUserRoleSelect').value;
+
+            if (usersDatabase.some(u => u.username.toLowerCase() === uId.toLowerCase())) {
+                alert('এই আইডিটি ইতিমধ্যে বিদ্যমান! অনুগ্রহ করে অন্য আইডি ব্যবহার করুন।');
+                return;
+            }
+
+            usersDatabase.push({
+                username: uId,
+                passwordHash: '',
+                name: uName,
+                role: uRole,
+                isFirstLogin: true
+            });
+
+            localStorage.setItem('fertilizer_users_db', JSON.stringify(usersDatabase));
+            document.getElementById('newUserIdInput').value = '';
+            document.getElementById('newUserNameInput').value = '';
+            renderUsersListTable();
+            alert(`নতুন ${uRole === 'manager' ? 'ম্যানেজার' : 'ক্যাশিয়ার'} আইডি সফলভাবে তৈরি হয়েছে! প্রথমবার লগইনের সময় পাসওয়ার্ড সেট করে নিতে হবে।`);
+        }
+
+        function renderUsersListTable() {
+            const tbody = document.getElementById('usersListTableBody');
+            if (!tbody) return;
+            tbody.innerHTML = '';
+
+            usersDatabase.forEach((u, i) => {
+                const roleText = u.role === 'admin' ? 'এডমিন' : (u.role === 'manager' ? 'ম্যানেজার' : 'ক্যাশিয়ার / স্টাফ');
+                tbody.innerHTML += `
+                    <tr class="border-b border-slate-200 hover:bg-indigo-50 font-bold">
+                        <td class="p-2 border-r border-slate-200 text-center">${toBnNum(i + 1)}</td>
+                        <td class="p-2 border-r border-slate-200 font-black">${u.username}</td>
+                        <td class="p-2 border-r border-slate-200">${u.name}</td>
+                        <td class="p-2 border-r border-slate-200 text-center">
+                            <span class="px-2 py-0.5 text-[10px] rounded ${u.role === 'admin' ? 'bg-red-100 text-red-800' : (u.role === 'manager' ? 'bg-blue-100 text-blue-800' : 'bg-slate-100 text-slate-800')}">${roleText}</span>
+                        </td>
+                        <td class="p-2 text-center">
+                            ${u.role === 'admin' ? '<span class="text-[10px] text-slate-400 font-normal">এডমিন আইডি</span>' : `<button onclick="deleteUserAccount('${u.username}')" class="text-red-600 hover:text-red-800 text-xs font-black"><i class="fa-solid fa-trash"></i> মুছে ফেলুন</button>`}
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        function deleteUserAccount(uId) {
+            if (confirm(`আপনি কি নিশ্চিত যে "${uId}" আইডিটি মুছে ফেলতে চান?`)) {
+                usersDatabase = usersDatabase.filter(u => u.username !== uId);
+                localStorage.setItem('fertilizer_users_db', JSON.stringify(usersDatabase));
+                renderUsersListTable();
+            }
+        }
+
+        function clearAllSystemData() {
+            if (confirm("আপনি কি নিশ্চিত যে সমস্ত পুরাতন মেমো, গ্রাহক ও কাস্টম তথ্য মুছে ফেলতে চান? এই অ্যাকশনটি রিভার্স করা যাবে না।")) {
+                localStorage.removeItem('fertilizer_memos_db');
+                localStorage.removeItem('fertilizer_customers_db');
+                localStorage.removeItem('fertilizer_receipts_db');
+                localStorage.removeItem('fertilizer_stock_db');
+                alert("সমস্ত পুরাতন মেমো ও ডেটা মুছে ফেলা হয়েছে।");
+                window.location.reload();
+            }
+        }
+    </script>
+</body>
+</html>
