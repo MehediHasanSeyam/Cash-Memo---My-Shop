@@ -12,6 +12,11 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <!-- CryptoJS for SHA-256 Password Hashing -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+    
+    <!-- Firebase JS SDK (Compat mode for simple CDN integration) -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
+
     <script>
         tailwind.config = {
             theme: {
@@ -226,6 +231,9 @@
                 </div>
                 
                 <div class="flex items-center gap-2">
+                    <!-- FIREBASE STATUS BADGE -->
+                    <div id="cloudStatusBadge" class="hidden sm:flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-black border"></div>
+
                     <div id="loggedInUserBadge" class="hidden sm:flex items-center gap-1.5 bg-agri-800 border border-amber-400 text-amber-300 px-3 py-1 rounded-lg text-xs font-black">
                         <i class="fa-solid fa-user-check"></i> <span id="loggedInUserName">--</span>
                     </div>
@@ -257,6 +265,9 @@
                                 <i class="fa-solid fa-chart-line text-blue-700"></i> দৈনিক সেলস ড্যাশবোর্ড
                             </button>
                             <!-- ADMIN & MANAGER ONLY OPTIONS -->
+                            <button onclick="openMenuOption('firebaseConfigModal')" class="admin-manager-only w-full text-left px-4 py-2 text-xs font-black hover:bg-slate-100 flex items-center gap-2 border-b text-emerald-800">
+                                <i class="fa-solid fa-cloud text-emerald-700"></i> ফায়ারবেস ক্লাউড সেটিংস
+                            </button>
                             <button onclick="openMenuOption('userManagementModal')" class="admin-manager-only w-full text-left px-4 py-2 text-xs font-black hover:bg-slate-100 flex items-center gap-2 border-b text-indigo-800">
                                 <i class="fa-solid fa-users-gear text-indigo-700"></i> ম্যানেজার ও স্টাফ আইডি তৈরি
                             </button>
@@ -297,6 +308,45 @@
             <!-- POPUP MODALS SECTION (NO-PRINT) -->
             <div class="no-print space-y-4">
                 
+                <!-- FIREBASE CONFIG MODAL -->
+                <div id="firebaseConfigModal" class="hidden bg-white p-5 rounded-xl shadow-lg border-2 border-emerald-500">
+                    <div class="flex justify-between items-center border-b-2 border-slate-200 pb-2 mb-3">
+                        <h3 class="font-black text-slate-900 text-sm flex items-center gap-2">
+                            <i class="fa-solid fa-cloud text-emerald-700"></i> ফায়ারবেস ক্লাউড কানেকশন (Realtime Database)
+                        </h3>
+                        <button onclick="toggleSection('firebaseConfigModal')" class="text-slate-600 hover:text-slate-900 font-black text-base">✕</button>
+                    </div>
+                    <form onsubmit="saveCustomFirebaseConfig(event)" class="space-y-3">
+                        <p class="text-xs text-slate-600 font-extrabold">Firebase Console (firebase.google.com) থেকে পাওয়া আপনার প্রজেক্টের Config তথ্যগুলো নিচে দিন। এটি একবার সেট করলে সব ডিভাইসে অটো সিঙ্ক চালু হবে:</p>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-xs font-black text-slate-900 mb-1">API Key</label>
+                                <input type="text" id="fbApiKey" placeholder="AIzaSy..." class="w-full p-2 border-2 border-slate-300 rounded text-xs font-black bg-white text-slate-900">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-black text-slate-900 mb-1">Auth Domain</label>
+                                <input type="text" id="fbAuthDomain" placeholder="your-app.firebaseapp.com" class="w-full p-2 border-2 border-slate-300 rounded text-xs font-black bg-white text-slate-900">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-black text-slate-900 mb-1">Database URL</label>
+                                <input type="text" id="fbDbUrl" placeholder="https://your-app-default-rtdb.firebaseio.com" class="w-full p-2 border-2 border-slate-300 rounded text-xs font-black bg-white text-slate-900">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-black text-slate-900 mb-1">Project ID</label>
+                                <input type="text" id="fbProjectId" placeholder="your-app" class="w-full p-2 border-2 border-slate-300 rounded text-xs font-black bg-white text-slate-900">
+                            </div>
+                        </div>
+                        <div class="flex gap-2 pt-2">
+                            <button type="submit" class="w-2/3 bg-emerald-700 hover:bg-emerald-800 text-white font-black py-2 rounded-lg text-xs shadow border border-emerald-900">
+                                সেটিং সংরক্ষণ ও কানেক্ট করুন
+                            </button>
+                            <button type="button" onclick="clearFirebaseConfig()" class="w-1/3 bg-red-600 hover:bg-red-700 text-white font-black py-2 rounded-lg text-xs shadow border border-red-800">
+                                কানেকশন মুছুন
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
                 <!-- USER / MANAGER ID MANAGEMENT MODAL -->
                 <div id="userManagementModal" class="hidden bg-white p-5 rounded-xl shadow-lg border-2 border-indigo-300">
                     <div class="flex justify-between items-center border-b-2 border-slate-200 pb-2 mb-3">
@@ -836,8 +886,139 @@
         </div>
     </div>
 
-    <!-- JAVASCRIPT APP LOGIC WITH SHA-256 HASHING SECURITY -->
+    <!-- JAVASCRIPT APP LOGIC WITH SHA-256 HASHING SECURITY & FIREBASE SYNC -->
     <script>
+        // FIREBASE REALTIME DATABASE CONFIGURATION
+        // (আপনি সরাসরি নিচে আপনার কী-গুলো বসাতে পারেন অথবা ৩-ডট মেনু থেকেও সেট করতে পারেন)
+        let firebaseConfig = JSON.parse(localStorage.getItem('firebase_custom_config')) || {
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+            databaseURL: "https://YOUR_PROJECT_ID-default-rtdb.firebaseio.com",
+            projectId: "YOUR_PROJECT_ID"
+        };
+
+        let isFirebaseActive = false;
+        let db = null;
+
+        function initFirebase() {
+            try {
+                if (typeof firebase !== 'undefined' && firebaseConfig.apiKey && firebaseConfig.apiKey !== "YOUR_API_KEY") {
+                    if (!firebase.apps.length) {
+                        firebase.initializeApp(firebaseConfig);
+                    }
+                    db = firebase.database();
+                    isFirebaseActive = true;
+                    updateCloudStatusBadge(true);
+                    setupFirebaseListeners();
+                } else {
+                    updateCloudStatusBadge(false);
+                }
+            } catch (e) {
+                console.warn("Firebase Init Error (local mode active):", e);
+                updateCloudStatusBadge(false);
+            }
+        }
+
+        function updateCloudStatusBadge(isOnline) {
+            const badge = document.getElementById('cloudStatusBadge');
+            if (!badge) return;
+            badge.classList.remove('hidden');
+            if (isOnline) {
+                badge.className = "hidden sm:flex items-center gap-1.5 bg-agri-800 border border-emerald-400 text-emerald-300 px-2.5 py-1 rounded-lg text-xs font-black";
+                badge.innerHTML = `<i class="fa-solid fa-cloud text-emerald-400"></i> <span>অনলাইন সিঙ্ক</span>`;
+            } else {
+                badge.className = "hidden sm:flex items-center gap-1.5 bg-agri-800 border border-amber-400 text-amber-300 px-2.5 py-1 rounded-lg text-xs font-black";
+                badge.innerHTML = `<i class="fa-solid fa-hard-drive text-amber-400"></i> <span>লোকাল মোড</span>`;
+            }
+        }
+
+        function setupFirebaseListeners() {
+            if (!isFirebaseActive || !db) return;
+
+            db.ref('fertilizer_rates').on('value', snap => {
+                if (snap.exists()) {
+                    FERTILIZER_RATES = snap.val();
+                    localStorage.setItem('fertilizer_rates_db', JSON.stringify(FERTILIZER_RATES));
+                    renderRateConfigForm();
+                    recalculateAllItemPrices();
+                }
+            });
+
+            db.ref('fertilizer_customers').on('value', snap => {
+                if (snap.exists()) {
+                    customerDatabase = snap.val() || [];
+                    localStorage.setItem('fertilizer_customers_db', JSON.stringify(customerDatabase));
+                    updateDueKhataList();
+                }
+            });
+
+            db.ref('fertilizer_memos').on('value', snap => {
+                if (snap.exists()) {
+                    memoDatabase = snap.val() || [];
+                    localStorage.setItem('fertilizer_memos_db', JSON.stringify(memoDatabase));
+                    updateSalesDashboard();
+                    updateDueKhataList();
+                    updateLiveStockDisplay();
+                }
+            });
+
+            db.ref('fertilizer_receipts').on('value', snap => {
+                if (snap.exists()) {
+                    receiptDatabase = snap.val() || [];
+                    localStorage.setItem('fertilizer_receipts_db', JSON.stringify(receiptDatabase));
+                    updateDueKhataList();
+                }
+            });
+
+            db.ref('fertilizer_stock').on('value', snap => {
+                if (snap.exists()) {
+                    stockImports = snap.val() || [];
+                    localStorage.setItem('fertilizer_stock_db', JSON.stringify(stockImports));
+                    updateLiveStockDisplay();
+                }
+            });
+
+            db.ref('fertilizer_users').on('value', snap => {
+                if (snap.exists()) {
+                    usersDatabase = snap.val() || [];
+                    localStorage.setItem('fertilizer_users_db', JSON.stringify(usersDatabase));
+                    renderUsersListTable();
+                }
+            });
+        }
+
+        function syncToFirebase(key, data) {
+            if (isFirebaseActive && db) {
+                db.ref(key).set(data).catch(err => console.error("Firebase Sync Error:", err));
+            }
+        }
+
+        function saveCustomFirebaseConfig(e) {
+            e.preventDefault();
+            const config = {
+                apiKey: document.getElementById('fbApiKey').value.trim(),
+                authDomain: document.getElementById('fbAuthDomain').value.trim(),
+                databaseURL: document.getElementById('fbDbUrl').value.trim(),
+                projectId: document.getElementById('fbProjectId').value.trim()
+            };
+
+            if (!config.apiKey || !config.databaseURL) {
+                alert("দয়া করে অন্তত API Key এবং Database URL প্রদান করুন!");
+                return;
+            }
+
+            localStorage.setItem('firebase_custom_config', JSON.stringify(config));
+            alert("ফায়ারবেস কনফিগারেশন সংরক্ষণ করা হয়েছে! সফটওয়্যারটি পুনরায় লোড হচ্ছে...");
+            window.location.reload();
+        }
+
+        function clearFirebaseConfig() {
+            if (confirm("ফায়ারবেস ক্লাউড কানেকশন মুছে ফেলতে চান? এটি লোকাল মোডে ফেরত যাবে।")) {
+                localStorage.removeItem('firebase_custom_config');
+                window.location.reload();
+            }
+        }
+
         function hashPassword(str) {
             return str ? CryptoJS.SHA256(str).toString() : '';
         }
@@ -885,7 +1066,6 @@
         let receiptDatabase = JSON.parse(localStorage.getItem('fertilizer_receipts_db')) || [];
         let stockImports = JSON.parse(localStorage.getItem('fertilizer_stock_db')) || [];
         
-        // NO PLAIN TEXT PASSWORDS IN CODE - HASHED/DYNAMIC FIRST-TIME SETUP
         let usersDatabase = JSON.parse(localStorage.getItem('fertilizer_users_db')) || [
             { username: 'admin', passwordHash: '', name: 'আবু নোমান', role: 'admin', isFirstLogin: true },
             { username: 'manager', passwordHash: '', name: 'ম্যানেজার নোমান', role: 'manager', isFirstLogin: true },
@@ -894,8 +1074,19 @@
         localStorage.setItem('fertilizer_users_db', JSON.stringify(usersDatabase));
 
         window.onload = function() {
+            initFirebase();
             checkLoginState();
+            populateFirebaseForm();
         };
+
+        function populateFirebaseForm() {
+            if (firebaseConfig) {
+                if (document.getElementById('fbApiKey')) document.getElementById('fbApiKey').value = firebaseConfig.apiKey || '';
+                if (document.getElementById('fbAuthDomain')) document.getElementById('fbAuthDomain').value = firebaseConfig.authDomain || '';
+                if (document.getElementById('fbDbUrl')) document.getElementById('fbDbUrl').value = firebaseConfig.databaseURL || '';
+                if (document.getElementById('fbProjectId')) document.getElementById('fbProjectId').value = firebaseConfig.projectId || '';
+            }
+        }
 
         function getCurrentLoggedInUser() {
             return JSON.parse(sessionStorage.getItem('fertilizer_current_user')) || { username: 'admin', name: 'আবু নোমান', role: 'admin' };
@@ -955,6 +1146,8 @@
                 uObj.passwordHash = hashPassword(pass1);
                 uObj.isFirstLogin = false;
                 localStorage.setItem('fertilizer_users_db', JSON.stringify(usersDatabase));
+                syncToFirebase('fertilizer_users', usersDatabase);
+
                 sessionStorage.setItem('fertilizer_logged_in', 'true');
                 sessionStorage.setItem('fertilizer_current_user', JSON.stringify(uObj));
                 sessionStorage.removeItem('fertilizer_pending_user');
@@ -969,14 +1162,12 @@
         function applyRoleBasedPermissions() {
             const user = getCurrentLoggedInUser();
             
-            // Show user badge
             const badge = document.getElementById('loggedInUserBadge');
             if (badge) {
                 badge.classList.remove('hidden');
                 document.getElementById('loggedInUserName').innerText = `${user.name} (${user.role === 'admin' ? 'এডমিন' : (user.role === 'manager' ? 'ম্যানেজার' : 'ক্যাশিয়ার')})`;
             }
 
-            // Hide Sensitive Menu items for Staff/Cashier
             const adminManagerOnlyElements = document.querySelectorAll('.admin-manager-only');
             if (user.role === 'cashier') {
                 adminManagerOnlyElements.forEach(el => el.classList.add('hidden'));
@@ -1002,7 +1193,6 @@
             if (items.length === 0) addItem();
         }
 
-        // DYNAMIC ID GENERATION FOR KRISHOK (FM), SUB-DEALER (SD), BUYER (CUS)
         function generateDynamicIDs() {
             const cType = document.querySelector('input[name="customerType"]:checked').value;
             let prefix = cType === 'retailer' ? 'SD' : (cType === 'buyer' ? 'CUS' : 'FM');
@@ -1173,7 +1363,6 @@
             document.querySelectorAll('.pCustStoreName').forEach(el => el.innerText = custStoreName);
             document.querySelectorAll('.pCustType').forEach(el => el.innerText = cType === 'farmer' ? 'কৃষক' : (cType === 'retailer' ? 'সাব-ডিলার' : 'সাধারণ ক্রেতা'));
             
-            // SHOW PREPARED BY CASHIER / ADMIN NAME
             document.querySelectorAll('.pPreparedBy').forEach(el => el.innerText = currentUser.name);
 
             if (cType === 'retailer') {
@@ -1260,6 +1449,7 @@
             const idx = customerDatabase.findIndex(c => c.custPhone === cust.custPhone || c.custID === cust.custID);
             if (idx > -1) customerDatabase[idx] = cust; else customerDatabase.push(cust);
             localStorage.setItem('fertilizer_customers_db', JSON.stringify(customerDatabase));
+            syncToFirebase('fertilizer_customers', customerDatabase);
         }
 
         function saveAndPrintMemo() {
@@ -1318,6 +1508,7 @@
                 document.getElementById('memoNo').dataset.locked = "true";
             }
             localStorage.setItem('fertilizer_memos_db', JSON.stringify(memoDatabase));
+            syncToFirebase('fertilizer_memos', memoDatabase);
             
             saveOrUpdateCustomerProfile();
             updateSalesDashboard();
@@ -1409,6 +1600,8 @@
 
             stockImports.push({ id: Date.now(), date, name, qty });
             localStorage.setItem('fertilizer_stock_db', JSON.stringify(stockImports));
+            syncToFirebase('fertilizer_stock', stockImports);
+
             document.getElementById('importQty').value = '';
             updateLiveStockDisplay();
             alert("আমদানি সফলভাবে যুক্ত হয়েছে!");
@@ -1490,6 +1683,7 @@
         function deleteImport(id) {
             stockImports = stockImports.filter(s => s.id !== id);
             localStorage.setItem('fertilizer_stock_db', JSON.stringify(stockImports));
+            syncToFirebase('fertilizer_stock', stockImports);
             updateLiveStockDisplay();
         }
         function clearStockDateFilter() { document.getElementById('stockFilterDate').value = ''; updateLiveStockDisplay(); }
@@ -1557,8 +1751,9 @@
                 
                 receiptDatabase.push(rcp);
                 localStorage.setItem('fertilizer_receipts_db', JSON.stringify(receiptDatabase));
+                syncToFirebase('fertilizer_receipts', receiptDatabase);
+
                 updateDueKhataList();
-                
                 reprintReceipt(rcpNo); 
             }
         }
@@ -1776,7 +1971,6 @@
             toggleSection('adminSettingsModal');
         }
 
-        // RATE CONFIG & USER MANAGEMENT FUNCTIONS
         function renderRateConfigForm() {
             const container = document.getElementById('rateConfigContainer');
             if (!container) return;
@@ -1829,6 +2023,8 @@
                 FERTILIZER_RATES.subdealer[fert] = { bag: bagVal, loose: looseVal };
             });
             localStorage.setItem('fertilizer_rates_db', JSON.stringify(FERTILIZER_RATES));
+            syncToFirebase('fertilizer_rates', FERTILIZER_RATES);
+
             recalculateAllItemPrices();
             alert('সারের মূল্য তালিকা সফলভাবে সংরক্ষণ করা হয়েছে!');
             toggleSection('rateConfigModal');
@@ -1858,6 +2054,8 @@
             }
 
             localStorage.setItem('fertilizer_users_db', JSON.stringify(usersDatabase));
+            syncToFirebase('fertilizer_users', usersDatabase);
+
             sessionStorage.setItem('fertilizer_current_user', JSON.stringify(adminUser));
             applyRoleBasedPermissions();
             renderUsersListTable();
@@ -1885,6 +2083,8 @@
             });
 
             localStorage.setItem('fertilizer_users_db', JSON.stringify(usersDatabase));
+            syncToFirebase('fertilizer_users', usersDatabase);
+
             document.getElementById('newUserIdInput').value = '';
             document.getElementById('newUserNameInput').value = '';
             renderUsersListTable();
@@ -1918,6 +2118,7 @@
             if (confirm(`আপনি কি নিশ্চিত যে "${uId}" আইডিটি মুছে ফেলতে চান?`)) {
                 usersDatabase = usersDatabase.filter(u => u.username !== uId);
                 localStorage.setItem('fertilizer_users_db', JSON.stringify(usersDatabase));
+                syncToFirebase('fertilizer_users', usersDatabase);
                 renderUsersListTable();
             }
         }
@@ -1928,6 +2129,12 @@
                 localStorage.removeItem('fertilizer_customers_db');
                 localStorage.removeItem('fertilizer_receipts_db');
                 localStorage.removeItem('fertilizer_stock_db');
+
+                syncToFirebase('fertilizer_memos', []);
+                syncToFirebase('fertilizer_customers', []);
+                syncToFirebase('fertilizer_receipts', []);
+                syncToFirebase('fertilizer_stock', []);
+
                 alert("সমস্ত পুরাতন মেমো ও ডেটা মুছে ফেলা হয়েছে।");
                 window.location.reload();
             }
